@@ -49,8 +49,8 @@ export default function Navbar() {
     return (
         <header
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? 'bg-white/95 backdrop-blur-md shadow-soft'
-                    : 'bg-white'
+                ? 'bg-white/95 backdrop-blur-md shadow-soft'
+                : 'bg-white'
                 }`}
         >
             <nav className="container-custom">
@@ -210,10 +210,10 @@ export default function Navbar() {
                             </div>
                         ) : (
                             <div className="hidden sm:flex items-center gap-2">
-                                <Link href="/login" className="btn-ghost text-sm py-2 px-4">
+                                <Link href="/login" className="btn-ghost text-sm font-medium py-2.5 px-6 rounded-full hover:bg-slate-100">
                                     Log In
                                 </Link>
-                                <Link href="/signup" className="btn-primary text-sm py-2 px-4">
+                                <Link href="/signup" className="btn-primary text-sm font-medium py-2.5 px-6 shadow-md shadow-blue-500/20">
                                     Sign Up
                                 </Link>
                             </div>
@@ -303,6 +303,6 @@ export default function Navbar() {
                     </div>
                 )}
             </nav>
-        </header>
+        </header >
     );
 }

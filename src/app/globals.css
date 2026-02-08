@@ -121,16 +121,20 @@ h6 {
 @layer components {
 
   /* Modern Button Styles */
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 font-semibold rounded-xl transition-all duration-300 active:scale-95 disabled:opacity-70 disabled:pointer-events-none;
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline,
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold rounded-full transition-all duration-300 active:scale-95 disabled:opacity-70 disabled:pointer-events-none;
   }
 
   .btn-primary {
-    @apply bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 text-white shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:translate-y-[-2px] hover:brightness-110;
+    @apply bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 hover:from-blue-700 hover:to-indigo-700;
   }
 
   .btn-secondary {
-    @apply bg-white text-slate-700 border border-slate-200 shadow-sm hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900;
+    @apply bg-white text-slate-700 border border-slate-200 shadow-sm hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300;
   }
 
   .btn-outline {
@@ -138,7 +142,7 @@ h6 {
   }
 
   .btn-ghost {
-    @apply text-slate-500 hover:text-slate-900 hover:bg-slate-100;
+    @apply text-slate-600 hover:text-slate-900 hover:bg-slate-100/50;
   }
 
   /* Input Fields */

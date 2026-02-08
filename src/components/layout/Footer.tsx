@@ -25,15 +25,17 @@ export default function Footer() {
                             <h3 className="text-2xl font-bold text-white mb-2">Stay Updated!</h3>
                             <p className="text-slate-400">Get notified about new notes and exclusive offers.</p>
                         </div>
-                        <form className="flex w-full md:w-auto gap-3">
+                        <form className="relative flex w-full md:w-auto">
                             <input
                                 type="email"
                                 placeholder="Enter your email"
-                                className="flex-1 md:w-80 px-5 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                className="w-full md:w-80 pl-5 pr-32 py-3.5 bg-slate-800/50 border border-slate-700 rounded-full text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all backdrop-blur-sm"
                             />
-                            <button type="submit" className="btn-primary whitespace-nowrap">
+                            <button
+                                type="submit"
+                                className="absolute right-1.5 top-1.5 bottom-1.5 bg-primary hover:bg-primary/90 text-white px-6 rounded-full font-medium transition-colors flex items-center gap-2 shadow-lg shadow-primary/20"
+                            >
                                 Subscribe
-                                <ArrowRight className="w-4 h-4" />
                             </button>
                         </form>
                     </div>

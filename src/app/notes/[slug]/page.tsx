@@ -152,8 +152,8 @@ export default function NoteDetailPage({ params }: { params: { slug: string } })
                         <div className="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden">
                             <BookOpen className="w-24 h-24 text-slate-300" />
                             <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                                <button className="btn bg-white text-foreground hover:bg-slate-100 shadow-lg">
-                                    <Eye className="w-5 h-5" />
+                                <button className="btn bg-white text-foreground hover:scale-105 transition-transform duration-200 shadow-xl rounded-full px-6 py-3 font-medium">
+                                    <Eye className="w-5 h-5 text-primary" />
                                     Preview ({noteData.previewPages} pages)
                                 </button>
                             </div>
@@ -167,8 +167,8 @@ export default function NoteDetailPage({ params }: { params: { slug: string } })
                                         key={tab}
                                         onClick={() => setActiveTab(tab)}
                                         className={`pb-4 font-medium capitalize transition-colors relative ${activeTab === tab
-                                                ? 'text-primary'
-                                                : 'text-muted-foreground hover:text-foreground'
+                                            ? 'text-primary'
+                                            : 'text-muted-foreground hover:text-foreground'
                                             }`}
                                     >
                                         {tab}
@@ -220,8 +220,8 @@ export default function NoteDetailPage({ params }: { params: { slug: string } })
                                                     <Star
                                                         key={i}
                                                         className={`w-5 h-5 ${i < Math.floor(noteData.rating)
-                                                                ? 'fill-amber-400 text-amber-400'
-                                                                : 'text-slate-300'
+                                                            ? 'fill-amber-400 text-amber-400'
+                                                            : 'text-slate-300'
                                                             }`}
                                                     />
                                                 ))}
@@ -269,8 +269,8 @@ export default function NoteDetailPage({ params }: { params: { slug: string } })
                                                                 <Star
                                                                     key={i}
                                                                     className={`w-4 h-4 ${i < review.rating
-                                                                            ? 'fill-amber-400 text-amber-400'
-                                                                            : 'text-slate-300'
+                                                                        ? 'fill-amber-400 text-amber-400'
+                                                                        : 'text-slate-300'
                                                                         }`}
                                                                 />
                                                             ))}
@@ -345,11 +345,11 @@ export default function NoteDetailPage({ params }: { params: { slug: string } })
 
                             {/* Actions */}
                             <div className="space-y-3 mb-6">
-                                <button className="btn-primary w-full py-3.5">
+                                <button className="btn-primary w-full py-4 text-base shadow-xl shadow-blue-500/20">
                                     <ShoppingCart className="w-5 h-5" />
                                     Add to Cart
                                 </button>
-                                <button className="btn-outline w-full py-3.5">
+                                <button className="btn-outline w-full py-4 text-base rounded-full border-2 hover:bg-indigo-50">
                                     Buy Now
                                 </button>
                             </div>
