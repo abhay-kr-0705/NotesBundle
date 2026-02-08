@@ -117,173 +117,177 @@ h6 {
   }
 }
 
-/* Component styles - using standard CSS instead of @apply for CSS variable compatibility */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  border-radius: 0.75rem;
-  transition: all 0.2s;
-}
+/* Component styles - using standard CSS inside @layer components to allow utility overrides */
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    transition: all 0.2s;
+  }
 
-.btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
-}
+  .btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+  }
 
-.btn:disabled {
-  opacity: 0.5;
-  pointer-events: none;
-}
+  .btn:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
 
-.btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
-  color: white;
-}
+  .btn-primary {
+    background-color: var(--primary);
+    color: white;
+  }
 
-.btn-primary:hover {
-  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.25);
-  transform: translateY(-2px);
-}
+  .btn-primary:hover {
+    background-color: #4338ca;
+    /* darker shade of primary */
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    transform: translateY(-1px);
+  }
 
-.btn-secondary {
-  background-color: var(--secondary);
-  color: var(--secondary-foreground);
-}
+  .btn-secondary {
+    background-color: var(--secondary);
+    color: var(--secondary-foreground);
+  }
 
-.btn-secondary:hover {
-  background-color: #e2e8f0;
-}
+  .btn-secondary:hover {
+    background-color: #e2e8f0;
+  }
 
-.btn-outline {
-  border: 2px solid var(--primary);
-  color: var(--primary);
-  background: transparent;
-}
+  .btn-outline {
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    background: transparent;
+  }
 
-.btn-outline:hover {
-  background-color: var(--primary);
-  color: white;
-}
+  .btn-outline:hover {
+    background-color: var(--primary);
+    color: white;
+  }
 
-.btn-ghost {
-  color: var(--muted-foreground);
-  background: transparent;
-}
+  .btn-ghost {
+    color: var(--muted-foreground);
+    background: transparent;
+  }
 
-.btn-ghost:hover {
-  background-color: var(--secondary);
-  color: var(--foreground);
-}
+  .btn-ghost:hover {
+    background-color: var(--secondary);
+    color: var(--foreground);
+  }
 
-.input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background-color: white;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  color: var(--foreground);
-  transition: all 0.2s;
-}
+  .input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: white;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    color: var(--foreground);
+    transition: all 0.2s;
+  }
 
-.input::placeholder {
-  color: var(--muted-foreground);
-}
+  .input::placeholder {
+    color: var(--muted-foreground);
+  }
 
-.input:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--primary);
-  border-color: transparent;
-}
+  .input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary);
+    border-color: transparent;
+  }
 
-.card {
-  background-color: var(--card);
-  border-radius: 1rem;
-  border: 1px solid var(--border);
-  box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
-  transition: all 0.3s;
-}
+  .card {
+    background-color: var(--card);
+    border-radius: 1rem;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s;
+  }
 
-.card-hover:hover {
-  box-shadow: 0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 30px -5px rgba(0, 0, 0, 0.08);
-  transform: translateY(-4px);
-}
+  .card-hover:hover {
+    box-shadow: 0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
+  }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 9999px;
-}
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 9999px;
+  }
 
-.badge-primary {
-  background-color: rgba(37, 99, 235, 0.1);
-  color: var(--primary);
-}
+  .badge-primary {
+    background-color: rgba(37, 99, 235, 0.1);
+    color: var(--primary);
+  }
 
-.badge-accent {
-  background-color: rgba(34, 197, 94, 0.1);
-  color: var(--accent);
-}
+  .badge-accent {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: var(--accent);
+  }
 
-.badge-free {
-  background-color: #dcfce7;
-  color: #15803d;
-}
+  .badge-free {
+    background-color: #dcfce7;
+    color: #15803d;
+  }
 
-.badge-paid {
-  background-color: #fef3c7;
-  color: #b45309;
-}
+  .badge-paid {
+    background-color: #fef3c7;
+    color: #b45309;
+  }
 
-.section {
-  padding-top: 4rem;
-  padding-bottom: 4rem;
-}
-
-@media (min-width: 768px) {
   .section {
-    padding-top: 6rem;
-    padding-bottom: 6rem;
+    padding-top: 4rem;
+    padding-bottom: 4rem;
   }
-}
 
-.container-custom {
-  max-width: 80rem;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
+  @media (min-width: 768px) {
+    .section {
+      padding-top: 6rem;
+      padding-bottom: 6rem;
+    }
+  }
 
-@media (min-width: 640px) {
   .container-custom {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
-}
 
-@media (min-width: 1024px) {
-  .container-custom {
-    padding-left: 2rem;
-    padding-right: 2rem;
+  @media (min-width: 640px) {
+    .container-custom {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
   }
-}
 
-.link {
-  color: var(--primary);
-  transition: color 0.2s;
-  text-underline-offset: 4px;
-}
+  @media (min-width: 1024px) {
+    .container-custom {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
 
-.link:hover {
-  color: #1d4ed8;
-  text-decoration: underline;
+  .link {
+    color: var(--primary);
+    transition: color 0.2s;
+    text-underline-offset: 4px;
+  }
+
+  .link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+  }
 }
 
 /* Animation keyframes */

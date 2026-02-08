@@ -11,6 +11,10 @@ export async function GET(request: Request) {
         const sortBy = searchParams.get('sortBy') || 'createdAt';
         const sortOrder = searchParams.get('sortOrder') || 'desc';
 
+        const minPrice = searchParams.get('minPrice');
+        const maxPrice = searchParams.get('maxPrice');
+        const minRating = searchParams.get('minRating');
+
         const where: any = {
             isPublished: true,
         };
@@ -18,6 +22,18 @@ export async function GET(request: Request) {
         if (category) {
             where.category = {
                 slug: category,
+            };
+        }
+
+        if (minPrice || maxPrice) {
+            where.price = {};
+            if (minPrice) where.price.gte = parseFloat(minPrice);
+            if (maxPrice) where.price.lte = parseFloat(maxPrice);
+        }
+
+        if (minRating) {
+            where.averageRating = {
+                gte: parseFloat(minRating),
             };
         }
 

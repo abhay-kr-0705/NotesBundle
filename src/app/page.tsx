@@ -111,7 +111,7 @@ const testimonials = [
 
 export default function HomePage() {
     return (
-        <div className="pt-16 md:pt-20">
+        <div className="pt-16">
             {/* Hero Section */}
             <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50">
                 <div className="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-30"></div>

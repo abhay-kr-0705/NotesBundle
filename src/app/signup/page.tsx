@@ -50,10 +50,14 @@ export default function SignUpPage() {
                 setError('Passwords do not match');
                 return;
             }
-            if (formData.password.length < 6) {
-                setError('Password must be at least 6 characters');
+
+            // Password complexity check
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if (!passwordRegex.test(formData.password)) {
+                setError('Please meet all password requirements');
                 return;
             }
+
             setError('');
             setStep(2);
             return;
@@ -200,7 +204,6 @@ export default function SignUpPage() {
                                             placeholder="Create a password"
                                             className="input pl-12 pr-12"
                                             required
-                                            minLength={6}
                                         />
                                         <button
                                             type="button"
@@ -209,6 +212,31 @@ export default function SignUpPage() {
                                         >
                                             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                         </button>
+                                    </div>
+
+                                    {/* Password Requirements */}
+                                    <div className="mt-3 space-y-2 text-xs text-muted-foreground bg-slate-50 p-3 rounded-lg border border-border">
+                                        <p className="font-medium mb-1">Password must contain:</p>
+                                        <div className={`flex items-center gap-2 ${formData.password.length >= 8 ? 'text-green-600' : ''}`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full ${formData.password.length >= 8 ? 'bg-green-600' : 'bg-slate-300'}`}></div>
+                                            At least 8 characters
+                                        </div>
+                                        <div className={`flex items-center gap-2 ${/[A-Z]/.test(formData.password) ? 'text-green-600' : ''}`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full ${/[A-Z]/.test(formData.password) ? 'bg-green-600' : 'bg-slate-300'}`}></div>
+                                            One uppercase letter
+                                        </div>
+                                        <div className={`flex items-center gap-2 ${/[a-z]/.test(formData.password) ? 'text-green-600' : ''}`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full ${/[a-z]/.test(formData.password) ? 'bg-green-600' : 'bg-slate-300'}`}></div>
+                                            One lowercase letter
+                                        </div>
+                                        <div className={`flex items-center gap-2 ${/\d/.test(formData.password) ? 'text-green-600' : ''}`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full ${/\d/.test(formData.password) ? 'bg-green-600' : 'bg-slate-300'}`}></div>
+                                            One number
+                                        </div>
+                                        <div className={`flex items-center gap-2 ${/[@$!%*?&]/.test(formData.password) ? 'text-green-600' : ''}`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full ${/[@$!%*?&]/.test(formData.password) ? 'bg-green-600' : 'bg-slate-300'}`}></div>
+                                            One special character (@$!%*?&)
+                                        </div>
                                     </div>
                                 </div>
 
@@ -249,8 +277,8 @@ export default function SignUpPage() {
                                                 type="button"
                                                 onClick={() => toggleInterest(category.slug)}
                                                 className={`p-4 rounded-xl border-2 text-left transition-all ${formData.interests.includes(category.slug)
-                                                        ? 'border-primary bg-primary/5'
-                                                        : 'border-border hover:border-primary/50'
+                                                    ? 'border-primary bg-primary/5'
+                                                    : 'border-border hover:border-primary/50'
                                                     }`}
                                             >
                                                 <span className="text-2xl mb-2 block">{category.icon}</span>
