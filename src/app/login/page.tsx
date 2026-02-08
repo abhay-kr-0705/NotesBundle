@@ -79,7 +79,7 @@ export default function LoginPage() {
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     placeholder="Enter your email"
-                                    className="input pl-12"
+                                    className="input !pl-12"
                                     required
                                 />
                             </div>
@@ -97,7 +97,7 @@ export default function LoginPage() {
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                     placeholder="Enter your password"
-                                    className="input pl-12 pr-12"
+                                    className="input !pl-12 !pr-12"
                                     required
                                 />
                                 <button
@@ -123,7 +123,7 @@ export default function LoginPage() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="btn-primary w-full py-3.5"
+                            className="btn-primary w-full py-3.5 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40"
                         >
                             {isLoading ? (
                                 <>

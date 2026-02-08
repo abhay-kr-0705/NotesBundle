@@ -25,7 +25,7 @@ export async function POST(request: Request) {
         }
 
         // Validate password complexity
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
         if (!passwordRegex.test(password)) {
             return NextResponse.json(
                 { error: 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character' },

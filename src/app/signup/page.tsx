@@ -52,7 +52,7 @@ export default function SignUpPage() {
             }
 
             // Password complexity check
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
             if (!passwordRegex.test(formData.password)) {
                 setError('Please meet all password requirements');
                 return;
@@ -149,7 +149,7 @@ export default function SignUpPage() {
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                             placeholder="Enter your full name"
-                                            className="input pl-12"
+                                            className="input !pl-12"
                                             required
                                         />
                                     </div>
@@ -167,7 +167,7 @@ export default function SignUpPage() {
                                             value={formData.email}
                                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                             placeholder="Enter your email"
-                                            className="input pl-12"
+                                            className="input !pl-12"
                                             required
                                         />
                                     </div>
@@ -185,7 +185,7 @@ export default function SignUpPage() {
                                             value={formData.phone}
                                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                             placeholder="Enter your phone number"
-                                            className="input pl-12"
+                                            className="input !pl-12"
                                         />
                                     </div>
                                 </div>
@@ -202,7 +202,7 @@ export default function SignUpPage() {
                                             value={formData.password}
                                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                             placeholder="Create a password"
-                                            className="input pl-12 pr-12"
+                                            className="input !pl-12 !pr-12"
                                             required
                                         />
                                         <button
@@ -233,9 +233,9 @@ export default function SignUpPage() {
                                             <div className={`w-1.5 h-1.5 rounded-full ${/\d/.test(formData.password) ? 'bg-green-600' : 'bg-slate-300'}`}></div>
                                             One number
                                         </div>
-                                        <div className={`flex items-center gap-2 ${/[@$!%*?&]/.test(formData.password) ? 'text-green-600' : ''}`}>
-                                            <div className={`w-1.5 h-1.5 rounded-full ${/[@$!%*?&]/.test(formData.password) ? 'bg-green-600' : 'bg-slate-300'}`}></div>
-                                            One special character (@$!%*?&)
+                                        <div className={`flex items-center gap-2 ${/[^A-Za-z0-9]/.test(formData.password) ? 'text-green-600' : ''}`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full ${/[^A-Za-z0-9]/.test(formData.password) ? 'bg-green-600' : 'bg-slate-300'}`}></div>
+                                            One special character (e.g., ! @ # $)
                                         </div>
                                     </div>
                                 </div>
@@ -252,13 +252,13 @@ export default function SignUpPage() {
                                             value={formData.confirmPassword}
                                             onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                                             placeholder="Confirm your password"
-                                            className="input pl-12"
+                                            className="input !pl-12"
                                             required
                                         />
                                     </div>
                                 </div>
 
-                                <button type="submit" className="btn-primary w-full py-3.5">
+                                <button type="submit" className="btn-primary w-full py-3.5 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40">
                                     Continue
                                     <ArrowRight className="w-5 h-5" />
                                 </button>
@@ -276,13 +276,13 @@ export default function SignUpPage() {
                                                 key={category.slug}
                                                 type="button"
                                                 onClick={() => toggleInterest(category.slug)}
-                                                className={`p-4 rounded-xl border-2 text-left transition-all ${formData.interests.includes(category.slug)
-                                                    ? 'border-primary bg-primary/5'
-                                                    : 'border-border hover:border-primary/50'
+                                                className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${formData.interests.includes(category.slug)
+                                                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm'
+                                                    : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
                                                     }`}
                                             >
-                                                <span className="text-2xl mb-2 block">{category.icon}</span>
-                                                <span className="font-medium text-foreground">{category.name}</span>
+                                                <span className="text-2xl mb-2 block transform transition-transform group-hover:scale-110">{category.icon}</span>
+                                                <span className="font-medium">{category.name}</span>
                                             </button>
                                         ))}
                                     </div>
@@ -299,7 +299,7 @@ export default function SignUpPage() {
                                     <button
                                         type="submit"
                                         disabled={isLoading || formData.interests.length === 0}
-                                        className="btn-primary flex-1 py-3.5"
+                                        className="btn-primary flex-1 py-3.5 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40"
                                     >
                                         {isLoading ? (
                                             <>
