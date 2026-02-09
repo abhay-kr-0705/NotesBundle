@@ -1,73 +1,63 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
     Trash2,
-    Plus,
-    Minus,
     BookOpen,
     Tag,
     ShoppingBag,
     ArrowRight,
     Loader2
 } from 'lucide-react';
-
-// Sample cart data
-const initialCartItems = [
-    {
-        id: '1',
-        title: 'Complete GATE CSE Notes 2024',
-        slug: 'gate-cse-complete-notes-2024',
-        category: 'GATE',
-        price: 299,
-        discountPrice: 199,
-    },
-    {
-        id: '2',
-        title: 'BEU 3rd Semester All Subjects',
-        slug: 'beu-sem-3-notes',
-        category: 'Engineering',
-        price: 199,
-        discountPrice: null,
-    },
-];
+import { useCartStore } from '@/lib/store';
 
 export default function CartPage() {
-    const [cartItems, setCartItems] = useState(initialCartItems);
+    const { items: cartItems, removeItem, coupon: appliedCoupon, applyCoupon: setAppliedCoupon, removeCoupon: clearAppliedCoupon } = useCartStore();
     const [couponCode, setCouponCode] = useState('');
-    const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
     const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
-    const removeItem = (id: string) => {
-        setCartItems(cartItems.filter(item => item.id !== id));
-    };
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const applyCoupon = async () => {
         if (!couponCode.trim()) return;
         setIsApplyingCoupon(true);
 
-        // Simulate API call
+        // Simulate API call - In production, verify with backend
         setTimeout(() => {
-            setAppliedCoupon({ code: couponCode.toUpperCase(), discount: 50 });
+            setAppliedCoupon({ code: couponCode.toUpperCase(), discount: 50, type: 'FLAT' });
             setIsApplyingCoupon(false);
+            setCouponCode('');
         }, 1000);
     };
 
     const removeCoupon = () => {
-        setAppliedCoupon(null);
+        clearAppliedCoupon();
         setCouponCode('');
     };
 
     const subtotal = cartItems.reduce((sum, item) =>
-        sum + (item.discountPrice || item.price), 0
+        sum + (item.price), 0 // Assuming price on cart item is final price
     );
-    const discount = appliedCoupon?.discount || 0;
+    const discount = appliedCoupon ? appliedCoupon.discount : 0;
     const total = Math.max(subtotal - discount, 0);
+
+    if (!mounted) {
+        return (
+            <div className="pt-32 pb-16 min-h-screen">
+                <div className="container-custom flex justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+            </div>
+        );
+    }
 
     if (cartItems.length === 0) {
         return (
-            <div className="pt-32 pb-16">
+            <div className="pt-32 pb-16 min-h-screen">
                 <div className="container-custom text-center">
                     <ShoppingBag className="w-20 h-20 text-slate-300 mx-auto mb-4" />
                     <h1 className="text-2xl font-bold text-foreground mb-2">Your cart is empty</h1>
@@ -77,7 +67,7 @@ export default function CartPage() {
                     </Link>
                 </div>
             </div>
-            
+
         );
     }
 
@@ -92,8 +82,12 @@ export default function CartPage() {
                         <div className="card divide-y divide-border">
                             {cartItems.map((item) => (
                                 <div key={item.id} className="p-6 flex gap-4">
-                                    <div className="w-20 h-20 bg-slate-100 rounded-xl flex items-center justify-center shrink-0">
-                                        <BookOpen className="w-10 h-10 text-slate-400" />
+                                    <div className="w-20 h-20 bg-slate-100 rounded-xl flex items-center justify-center shrink-0 overflow-hidden relative">
+                                        {item.thumbnailUrl ? (
+                                            <img src={item.thumbnailUrl} alt={item.title} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <BookOpen className="w-10 h-10 text-slate-400" />
+                                        )}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-start justify-between gap-4">
@@ -115,11 +109,8 @@ export default function CartPage() {
                                         </div>
                                         <div className="flex items-center gap-3 mt-3">
                                             <span className="text-lg font-bold text-foreground">
-                                                ₹{item.discountPrice || item.price}
+                                                ₹{item.price}
                                             </span>
-                                            {item.discountPrice && (
-                                                <span className="text-muted-foreground line-through">₹{item.price}</span>
-                                            )}
                                         </div>
                                     </div>
                                 </div>

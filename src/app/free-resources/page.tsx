@@ -231,9 +231,9 @@ export default async function FreeResourcesPage({
                                                 <div className="flex items-center gap-2">
                                                     <div className="flex items-center gap-1">
                                                         <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                                                        <span className="font-medium text-sm">{note.averageRating.toFixed(1)}</span>
+                                                        <span className="font-medium text-sm">{(note.averageRating ?? 0).toFixed(1)}</span>
                                                     </div>
-                                                    <span className="text-muted-foreground text-sm">({note.totalReviews})</span>
+                                                    <span className="text-muted-foreground text-sm">({note.totalReviews || 0})</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-lg font-bold text-accent">Free</span>

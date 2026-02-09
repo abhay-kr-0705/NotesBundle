@@ -62,7 +62,7 @@ export default async function NotesPage({
     }
 
     if (minRating) {
-        where.rating = { gte: minRating };
+        where.averageRating = { gte: minRating };
     }
 
     // Build order by
@@ -76,7 +76,7 @@ export default async function NotesPage({
                 orderBy = { price: 'desc' };
                 break;
             case 'rating':
-                orderBy = { rating: 'desc' };
+                orderBy = { averageRating: 'desc' };
                 break;
             case 'popular':
                 orderBy = { downloadCount: 'desc' };
@@ -282,9 +282,9 @@ export default async function NotesPage({
                                                 <div className="flex items-center gap-2">
                                                     <div className="flex items-center gap-1">
                                                         <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                                                        <span className="font-medium text-sm">{note.rating.toFixed(1)}</span>
+                                                        <span className="font-medium text-sm">{(note.averageRating ?? 0).toFixed(1)}</span>
                                                     </div>
-                                                    <span className="text-muted-foreground text-sm">({note.reviews || 0})</span>
+                                                    <span className="text-muted-foreground text-sm">({note.totalReviews ?? 0})</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     {note.price === 0 ? (

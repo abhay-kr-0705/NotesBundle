@@ -1,31 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import {
     BookOpen,
     CreditCard,
-    Lock,
     CheckCircle,
     Loader2,
     Shield
 } from 'lucide-react';
-
-// Sample cart data for checkout
-const checkoutItems = [
-    {
-        id: '1',
-        title: 'Complete GATE CSE Notes 2024',
-        price: 199,
-    },
-    {
-        id: '2',
-        title: 'BEU 3rd Semester All Subjects',
-        price: 199,
-    },
-];
+import { useCartStore, CartItem } from '@/lib/store';
 
 declare global {
     interface Window {
@@ -36,12 +21,35 @@ declare global {
 export default function CheckoutPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const { items: cartItems, clearCart, coupon } = useCartStore();
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState('');
+    const [mounted, setMounted] = useState(false);
 
-    const subtotal = checkoutItems.reduce((sum, item) => sum + item.price, 0);
-    const discount = 50; // Example coupon discount
-    const total = subtotal - discount;
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Calculate totals
+    const subtotal = cartItems.reduce((sum: number, item: CartItem) => sum + (item.price || 0), 0);
+
+    let discount = 0;
+    if (coupon) {
+        if (coupon.type === 'FLAT') {
+            discount = coupon.discount;
+        } else if (coupon.type === 'PERCENTAGE') {
+            discount = (subtotal * coupon.discount) / 100;
+        }
+    }
+
+    const total = Math.max(subtotal - discount, 0);
+
+    // Redirect if cart is empty (only after mount to avoid hydration mismatch)
+    useEffect(() => {
+        if (mounted && cartItems.length === 0) {
+            router.push('/cart');
+        }
+    }, [mounted, cartItems.length, router]);
 
     const loadRazorpayScript = () => {
         return new Promise((resolve) => {
@@ -55,7 +63,7 @@ export default function CheckoutPage() {
 
     const handlePayment = async () => {
         if (!session) {
-            router.push('/login');
+            router.push('/login?callbackUrl=/checkout');
             return;
         }
 
@@ -76,8 +84,8 @@ export default function CheckoutPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    noteIds: checkoutItems.map(item => item.id),
-                    couponCode: 'SAVE50', // Example
+                    noteIds: cartItems.map((item: CartItem) => item.id),
+                    couponCode: coupon?.code || '',
                 }),
             });
 
@@ -93,7 +101,7 @@ export default function CheckoutPage() {
                 amount: orderData.amount * 100,
                 currency: orderData.currency,
                 name: 'NotesBundle',
-                description: `Order for ${checkoutItems.length} notes`,
+                description: `Order for ${cartItems.length} notes`,
                 order_id: orderData.razorpayOrderId,
                 prefill: {
                     name: session.user?.name || '',
@@ -118,6 +126,7 @@ export default function CheckoutPage() {
                     const verifyData = await verifyRes.json();
 
                     if (verifyRes.ok) {
+                        clearCart(); // Clear cart on success
                         router.push('/checkout/success?orderId=' + orderData.orderId);
                     } else {
                         setError(verifyData.error || 'Payment verification failed');
@@ -138,12 +147,16 @@ export default function CheckoutPage() {
         }
     };
 
-    if (status === 'loading') {
+    if (status === 'loading' || !mounted) {
         return (
             <div className="pt-32 pb-16 text-center">
-                <Loader2 className="w-8 h-8 animate-spin mx-auto" />
+                <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
             </div>
         );
+    }
+
+    if (cartItems.length === 0) {
+        return null; // Will redirect via useEffect
     }
 
     return (
@@ -157,10 +170,14 @@ export default function CheckoutPage() {
                         <div className="card p-6 mb-6">
                             <h2 className="font-semibold text-foreground mb-4">Order Details</h2>
                             <div className="space-y-4">
-                                {checkoutItems.map((item) => (
+                                {cartItems.map((item: CartItem) => (
                                     <div key={item.id} className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
-                                            <BookOpen className="w-6 h-6 text-slate-400" />
+                                        <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+                                            {item.thumbnailUrl ? (
+                                                <img src={item.thumbnailUrl} alt={item.title} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <BookOpen className="w-6 h-6 text-slate-400" />
+                                            )}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium text-foreground line-clamp-1">{item.title}</p>
@@ -196,10 +213,12 @@ export default function CheckoutPage() {
                                     <span>Subtotal</span>
                                     <span>₹{subtotal}</span>
                                 </div>
-                                <div className="flex justify-between text-accent">
-                                    <span>Discount (SAVE50)</span>
-                                    <span>-₹{discount}</span>
-                                </div>
+                                {coupon && (
+                                    <div className="flex justify-between text-accent">
+                                        <span>Discount ({coupon.code})</span>
+                                        <span>-₹{discount}</span>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex justify-between text-xl font-bold text-foreground mb-6">
