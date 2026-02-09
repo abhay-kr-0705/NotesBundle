@@ -23,6 +23,7 @@ import {
 import { CATEGORIES } from '@/lib/constants';
 
 import { useCartStore } from '@/lib/store';
+import Logo from '@/components/Logo';
 
 export default function Navbar() {
     const { data: session } = useSession();
@@ -62,12 +63,7 @@ export default function Navbar() {
                 <div className="flex items-center justify-between h-16 md:h-20">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group">
-                        <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/25 group-hover:shadow-primary-500/40 transition-shadow">
-                            <BookOpen className="w-6 h-6 text-white" />
-                        </div>
-                        <span className="text-xl font-bold text-foreground font-display">
-                            Notes<span className="text-primary">Bundle</span>
-                        </span>
+                        <Logo />
                     </Link>
 
                     {/* Desktop Navigation */}
