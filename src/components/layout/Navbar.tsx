@@ -186,12 +186,12 @@ export default function Navbar() {
                                                 <Heart className="w-4 h-4 text-muted-foreground" />
                                                 <span>Wishlist</span>
                                             </Link>
-                                            {session.user?.role === 'ADMIN' && (
+                                            {(session.user as any)?.role === 'ADMIN' && (
                                                 <Link
                                                     href="/admin"
-                                                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-secondary transition-colors"
+                                                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-secondary transition-colors text-primary font-medium"
                                                 >
-                                                    <Settings className="w-4 h-4 text-muted-foreground" />
+                                                    <Settings className="w-4 h-4" />
                                                     <span>Admin Panel</span>
                                                 </Link>
                                             )}
