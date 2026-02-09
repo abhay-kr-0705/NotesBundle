@@ -11,131 +11,96 @@ import {
 } from 'lucide-react';
 import { CATEGORIES } from '@/lib/constants';
 
-// Sample notes data (will be replaced with database query)
-const sampleNotes = [
-    {
-        id: '1',
-        title: 'Complete GATE CSE Notes 2024',
-        slug: 'gate-cse-complete-notes-2024',
-        description: 'Comprehensive notes covering all GATE CSE topics with solved examples and previous year questions.',
-        price: 299,
-        discountPrice: 199,
-        thumbnailUrl: null,
-        category: 'GATE',
-        categorySlug: 'gate',
-        rating: 4.8,
-        reviews: 234,
-        pages: 450,
-        downloadCount: 1520,
-    },
-    {
-        id: '2',
-        title: 'BEU 3rd Semester All Subjects',
-        slug: 'beu-3rd-semester-all-subjects',
-        description: 'Complete notes for all subjects of BEU 3rd semester CSE branch including DSA, DBMS, and more.',
-        price: 199,
-        discountPrice: null,
-        thumbnailUrl: null,
-        category: 'Engineering',
-        categorySlug: 'engineering',
-        rating: 4.6,
-        reviews: 156,
-        pages: 320,
-        downloadCount: 890,
-    },
-    {
-        id: '3',
-        title: 'SSC CGL Complete Preparation',
-        slug: 'ssc-cgl-complete-preparation',
-        description: 'All-in-one study material for SSC CGL with PYQs, mock tests, and detailed explanations.',
-        price: 0,
-        discountPrice: null,
-        thumbnailUrl: null,
-        category: 'Competitive',
-        categorySlug: 'competitive',
-        rating: 4.9,
-        reviews: 412,
-        pages: 280,
-        downloadCount: 2340,
-    },
-    {
-        id: '4',
-        title: 'Python Programming Handwritten Notes',
-        slug: 'python-programming-handwritten-notes',
-        description: 'Beautiful handwritten notes covering Python from basics to advanced with practical examples.',
-        price: 149,
-        discountPrice: 99,
-        thumbnailUrl: null,
-        category: 'Coding',
-        categorySlug: 'coding',
-        rating: 4.7,
-        reviews: 189,
-        pages: 180,
-        downloadCount: 1100,
-    },
-    {
-        id: '5',
-        title: 'GATE ECE Previous Year Questions',
-        slug: 'gate-ece-pyqs',
-        description: 'Complete collection of GATE ECE PYQs from 2010-2024 with detailed solutions.',
-        price: 249,
-        discountPrice: 179,
-        thumbnailUrl: null,
-        category: 'PYQs',
-        categorySlug: 'pyqs',
-        rating: 4.8,
-        reviews: 267,
-        pages: 520,
-        downloadCount: 1890,
-    },
-    {
-        id: '6',
-        title: 'Engineering Mathematics Handbook',
-        slug: 'engineering-mathematics-handbook',
-        description: 'Quick reference handbook for engineering mathematics with all formulas and concepts.',
-        price: 99,
-        discountPrice: null,
-        thumbnailUrl: null,
-        category: 'Handbooks',
-        categorySlug: 'handbooks',
-        rating: 4.5,
-        reviews: 145,
-        pages: 120,
-        downloadCount: 780,
-    },
-    {
-        id: '7',
-        title: 'Railway NTPC Complete Guide',
-        slug: 'railway-ntpc-complete-guide',
-        description: 'Comprehensive preparation material for Railway NTPC exam with all subjects covered.',
-        price: 0,
-        discountPrice: null,
-        thumbnailUrl: null,
-        category: 'Competitive',
-        categorySlug: 'competitive',
-        rating: 4.7,
-        reviews: 328,
-        pages: 350,
-        downloadCount: 2100,
-    },
-    {
-        id: '8',
-        title: 'Data Structures and Algorithms Notes',
-        slug: 'dsa-notes-complete',
-        description: 'In-depth notes on DSA with code examples in multiple languages and complexity analysis.',
-        price: 199,
-        discountPrice: 149,
-        thumbnailUrl: null,
-        category: 'Coding',
-        categorySlug: 'coding',
-        rating: 4.9,
-        reviews: 456,
-        pages: 280,
-        downloadCount: 3200,
-    },
-];
+import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
-export default function NotesPage() {
+export default async function NotesPage({
+    searchParams,
+}: {
+    searchParams: { [key: string]: string | string[] | undefined };
+}) {
+    // Parse search params
+    const category = typeof searchParams.category === 'string' ? searchParams.category : undefined;
+    const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
+    const priceRange = typeof searchParams.price === 'string' ? searchParams.price : undefined;
+    const minRating = typeof searchParams.rating === 'string' ? parseInt(searchParams.rating) : undefined;
+    const sort = typeof searchParams.sort === 'string' ? searchParams.sort : undefined;
+    const page = typeof searchParams.page === 'string' ? parseInt(searchParams.page) : 1;
+    const limit = 12;
+
+    // Build where clause
+    const where: Prisma.NoteWhereInput = {
+        isPublished: true,
+    };
+
+    if (category) {
+        where.category = { slug: category };
+    }
+
+    if (search) {
+        where.OR = [
+            { title: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+        ];
+    }
+
+    if (priceRange) {
+        switch (priceRange) {
+            case 'free':
+                where.price = 0;
+                break;
+            case 'under-100':
+                where.price = { gt: 0, lte: 100 };
+                break;
+            case '100-200':
+                where.price = { gt: 100, lte: 200 };
+                break;
+            case 'above-200':
+                where.price = { gt: 200 };
+                break;
+        }
+    }
+
+    if (minRating) {
+        where.rating = { gte: minRating };
+    }
+
+    // Build order by
+    let orderBy: Prisma.NoteOrderByWithRelationInput = { createdAt: 'desc' };
+    if (sort) {
+        switch (sort) {
+            case 'price-low':
+                orderBy = { price: 'asc' };
+                break;
+            case 'price-high':
+                orderBy = { price: 'desc' };
+                break;
+            case 'rating':
+                orderBy = { rating: 'desc' };
+                break;
+            case 'popular':
+                orderBy = { downloadCount: 'desc' };
+                break;
+        }
+    }
+
+    // Fetch data
+    const notes = await prisma.note.findMany({
+        where,
+        orderBy,
+        include: {
+            category: true,
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+    });
+
+    const totalNotes = await prisma.note.count({ where });
+
+    // Helper function to update query params
+    // We'll need client-side component for interactivity, but for now we render server side
+    // usage of sampleNotes will be replaced by 'notes'
+
     return (
         <div className="pt-20 md:pt-24 pb-16">
             {/* Header */}
@@ -244,7 +209,7 @@ export default function NotesPage() {
                         {/* Toolbar */}
                         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
                             <p className="text-muted-foreground">
-                                Showing <span className="font-semibold text-foreground">{sampleNotes.length}</span> notes
+                                Showing <span className="font-semibold text-foreground">{totalNotes}</span> notes
                             </p>
                             <div className="flex items-center gap-4">
                                 <select className="input py-2 px-4 w-auto text-sm">
@@ -267,64 +232,79 @@ export default function NotesPage() {
 
                         {/* Grid */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                            {sampleNotes.map((note) => (
-                                <Link
-                                    key={note.id}
-                                    href={`/notes/${note.slug}`}
-                                    className="card-hover overflow-hidden group"
-                                >
-                                    <div className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200 relative overflow-hidden">
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <BookOpen className="w-16 h-16 text-slate-300" />
-                                        </div>
-                                        {note.price === 0 && (
-                                            <span className="absolute top-3 left-3 badge-free">Free</span>
-                                        )}
-                                        {note.discountPrice && (
-                                            <span className="absolute top-3 right-3 badge bg-red-500 text-white">
-                                                {Math.round(((note.price - note.discountPrice) / note.price) * 100)}% OFF
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="p-5">
-                                        <span className="badge-primary text-xs mb-3">{note.category}</span>
-                                        <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                                            {note.title}
-                                        </h3>
-                                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                                            {note.description}
-                                        </p>
-                                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                                            <span>{note.pages} pages</span>
-                                            <span>•</span>
-                                            <span>{note.downloadCount.toLocaleString()} downloads</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                                <div className="flex items-center gap-1">
-                                                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                                                    <span className="font-medium text-sm">{note.rating}</span>
+                            {notes.length === 0 ? (
+                                <div className="col-span-full text-center py-12">
+                                    <h3 className="text-lg font-medium text-foreground">No notes found</h3>
+                                    <p className="text-muted-foreground mt-2">Try adjusting your filters or search query.</p>
+                                </div>
+                            ) : (
+                                notes.map((note) => (
+                                    <Link
+                                        key={note.id}
+                                        href={`/notes/${note.slug}`}
+                                        className="card-hover overflow-hidden group block h-full bg-card rounded-2xl border border-border"
+                                    >
+                                        <div className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200 relative overflow-hidden">
+                                            {note.thumbnailUrl ? (
+                                                <img
+                                                    src={note.thumbnailUrl}
+                                                    alt={note.title}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <BookOpen className="w-16 h-16 text-slate-300" />
                                                 </div>
-                                                <span className="text-muted-foreground text-sm">({note.reviews})</span>
+                                            )}
+                                            {note.price === 0 && (
+                                                <span className="absolute top-3 left-3 badge-free">Free</span>
+                                            )}
+                                            {note.discountPrice && note.discountPrice < note.price && (
+                                                <span className="absolute top-3 right-3 badge bg-red-500 text-white">
+                                                    {Math.round(((note.price - note.discountPrice) / note.price) * 100)}% OFF
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="p-5">
+                                            <span className="badge-primary text-xs mb-3">{note.category?.name || 'Uncategorized'}</span>
+                                            <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2 min-h-[3rem]">
+                                                {note.title}
+                                            </h3>
+                                            <p className="text-sm text-muted-foreground mb-3 line-clamp-2 min-h-[2.5rem]">
+                                                {note.description}
+                                            </p>
+                                            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                                                <span>{note.pages || 0} pages</span>
+                                                <span>•</span>
+                                                <span>{note.downloadCount.toLocaleString()} downloads</span>
                                             </div>
-                                            <div className="flex items-center gap-2">
-                                                {note.price === 0 ? (
-                                                    <span className="text-lg font-bold text-accent">Free</span>
-                                                ) : (
-                                                    <>
-                                                        <span className="text-lg font-bold text-foreground">
-                                                            ₹{note.discountPrice || note.price}
-                                                        </span>
-                                                        {note.discountPrice && (
-                                                            <span className="text-sm text-muted-foreground line-through">₹{note.price}</span>
-                                                        )}
-                                                    </>
-                                                )}
+                                            <div className="flex items-center justify-between mt-auto">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-1">
+                                                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                                                        <span className="font-medium text-sm">{note.rating.toFixed(1)}</span>
+                                                    </div>
+                                                    <span className="text-muted-foreground text-sm">({note.reviews || 0})</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    {note.price === 0 ? (
+                                                        <span className="text-lg font-bold text-accent">Free</span>
+                                                    ) : (
+                                                        <>
+                                                            <span className="text-lg font-bold text-foreground">
+                                                                ₹{note.discountPrice || note.price}
+                                                            </span>
+                                                            {note.discountPrice !== null && note.discountPrice < note.price && (
+                                                                <span className="text-sm text-muted-foreground line-through">₹{note.price}</span>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </Link>
-                            ))}
+                                    </Link>
+                                ))
+                            )}
                         </div>
 
                         {/* Pagination */}
