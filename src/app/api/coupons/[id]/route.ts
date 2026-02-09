@@ -36,7 +36,7 @@ export async function PUT(
             data: {
                 code: code?.toUpperCase(),
                 description,
-                discountType: discountType === 'percentage' ? 'PERCENTAGE' : 'FIXED',
+                discountType: discountType === 'percentage' ? 'PERCENTAGE' : 'FLAT',
                 discountValue: discountValue ? parseFloat(discountValue) : undefined,
                 maxDiscount: maxDiscount ? parseFloat(maxDiscount) : null,
                 minOrderValue: minOrderValue ? parseFloat(minOrderValue) : null,

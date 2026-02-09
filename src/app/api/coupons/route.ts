@@ -69,7 +69,7 @@ export async function POST(request: Request) {
             data: {
                 code: code.toUpperCase(),
                 description,
-                discountType: discountType === 'percentage' ? 'PERCENTAGE' : 'FIXED',
+                discountType: discountType === 'percentage' ? 'PERCENTAGE' : 'FLAT',
                 discountValue: parseFloat(discountValue),
                 maxDiscount: maxDiscount ? parseFloat(maxDiscount) : null,
                 minOrderValue: minOrderValue ? parseFloat(minOrderValue) : null,

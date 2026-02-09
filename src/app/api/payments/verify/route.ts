@@ -3,6 +3,7 @@ import { verifyPayment } from '@/lib/razorpay';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { sendEmail, purchaseConfirmationEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
     try {
@@ -57,6 +58,12 @@ export async function POST(request: Request) {
                     },
                 },
                 coupon: true,
+                user: {
+                    select: {
+                        name: true,
+                        email: true,
+                    },
+                },
             },
         });
 
@@ -97,6 +104,26 @@ export async function POST(request: Request) {
             },
         });
 
+        // Send purchase confirmation email
+        if (order.user.email) {
+            const emailHtml = purchaseConfirmationEmail(
+                order.user.name || 'Customer',
+                order.id,
+                order.items.map((item) => ({
+                    title: item.note.title,
+                    price: item.price,
+                })),
+                order.finalAmount
+            );
+
+            // Send email asynchronously (don't wait for it)
+            sendEmail({
+                to: order.user.email,
+                subject: '🎉 Your NotesBundle Purchase Confirmation',
+                html: emailHtml,
+            }).catch((err) => console.error('Failed to send email:', err));
+        }
+
         return NextResponse.json({
             success: true,
             order: {
@@ -115,3 +142,4 @@ export async function POST(request: Request) {
         );
     }
 }
+

@@ -222,7 +222,7 @@ export default function AdminNotesPage() {
                                     <td className="p-4">
                                         <div className="flex items-center gap-2">
                                             <Link
-                                                href={`/admin/notes/${note.id}/edit`}
+                                                href={`/admin/notes/${note.id}`}
                                                 className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
                                             >
                                                 <Edit className="w-4 h-4" />

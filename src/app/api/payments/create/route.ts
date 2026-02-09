@@ -55,13 +55,19 @@ export async function POST(request: Request) {
                     code: couponCode.toUpperCase(),
                     isActive: true,
                     validFrom: { lte: new Date() },
-                    OR: [
-                        { validUntil: null },
-                        { validUntil: { gte: new Date() } },
-                    ],
-                    OR: [
-                        { usageLimit: null },
-                        { usedCount: { lt: prisma.coupon.fields.usageLimit } },
+                    AND: [
+                        {
+                            OR: [
+                                { validUntil: null },
+                                { validUntil: { gte: new Date() } },
+                            ],
+                        },
+                        {
+                            OR: [
+                                { usageLimit: null },
+                                { usageLimit: { gt: prisma.coupon.fields.usedCount } },
+                            ],
+                        },
                     ],
                 },
             });

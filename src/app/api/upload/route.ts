@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
 import { PDFDocument } from 'pdf-lib';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { uploadToCloudinary } from '@/lib/cloudinary';
 
 export async function POST(request: Request) {
     try {
@@ -39,25 +38,19 @@ export async function POST(request: Request) {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
-        // Create unique filenames
+        // Create unique filename
         const timestamp = Date.now();
-        const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '');
-        const fileName = `${timestamp}-${originalName}`;
-        const previewName = `${timestamp}-preview-${originalName}`;
+        const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '').replace('.pdf', '');
+        const publicId = `${timestamp}-${originalName}`;
 
-        // Ensure directories exist
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'notes');
-        const previewDir = path.join(process.cwd(), 'public', 'uploads', 'previews');
-
-        await mkdir(uploadDir, { recursive: true });
-        await mkdir(previewDir, { recursive: true });
-
-        // Save original file
-        const filePath = path.join(uploadDir, fileName);
-        await writeFile(filePath, buffer);
+        // Upload original file to Cloudinary
+        const uploadResult = await uploadToCloudinary(buffer, {
+            folder: 'notesbundle/notes',
+            publicId,
+        });
 
         // Generate preview (first 5 pages)
-        let previewPath = '';
+        let previewUrl = uploadResult.secure_url;
         try {
             const pdfDoc = await PDFDocument.load(bytes);
             const previewDoc = await PDFDocument.create();
@@ -65,33 +58,38 @@ export async function POST(request: Request) {
             const pageCount = pdfDoc.getPageCount();
             const pagesToCopy = Math.min(pageCount, 5);
 
-            const copiedPages = await previewDoc.copyPages(pdfDoc, Array.from({ length: pagesToCopy }, (_, i) => i));
+            const copiedPages = await previewDoc.copyPages(
+                pdfDoc,
+                Array.from({ length: pagesToCopy }, (_, i) => i)
+            );
 
             copiedPages.forEach((page) => {
                 previewDoc.addPage(page);
             });
 
             const previewBytes = await previewDoc.save();
-            previewPath = path.join(previewDir, previewName);
-            await writeFile(previewPath, previewBytes);
+            const previewBuffer = Buffer.from(previewBytes);
+
+            // Upload preview to Cloudinary
+            const previewResult = await uploadToCloudinary(previewBuffer, {
+                folder: 'notesbundle/previews',
+                publicId: `preview-${publicId}`,
+            });
+
+            previewUrl = previewResult.secure_url;
         } catch (previewError) {
             console.error('Error generating preview:', previewError);
-            // If preview fails, just use the original file as preview or handle gracefully
-            // For now, we'll continue without a specific preview file
+            // If preview fails, use original file URL
         }
-
-        // Construct public URLs
-        const fileUrl = `/uploads/notes/${fileName}`;
-        const previewUrl = previewPath ? `/uploads/previews/${previewName}` : fileUrl;
 
         return NextResponse.json({
             success: true,
-            fileUrl,
+            fileUrl: uploadResult.secure_url,
             previewUrl,
-            fileName: originalName,
-            size: file.size
+            fileName: file.name,
+            size: file.size,
+            publicId: uploadResult.public_id,
         });
-
     } catch (error) {
         console.error('Upload error:', error);
         return NextResponse.json(

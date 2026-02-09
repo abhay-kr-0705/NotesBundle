@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -11,9 +11,10 @@ import {
 } from 'lucide-react';
 import { CATEGORIES, BRANCHES } from '@/lib/constants';
 
-export default function NewNotePage() {
+export default function EditNotePage({ params }: { params: { id: string } }) {
     const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [fileStats, setFileStats] = useState<{ name: string; size: number } | null>(null);
     const [formData, setFormData] = useState({
@@ -38,6 +39,47 @@ export default function NewNotePage() {
         isFeatured: false,
         isPublished: true,
     });
+
+    useEffect(() => {
+        const fetchNote = async () => {
+            try {
+                const res = await fetch(`/api/notes/${params.id}`);
+                if (!res.ok) throw new Error('Failed to fetch note');
+                const note = await res.json();
+
+                setFormData({
+                    title: note.title,
+                    description: note.description,
+                    shortDescription: note.shortDescription || '',
+                    price: note.price.toString(),
+                    discountPrice: note.discountPrice ? note.discountPrice.toString() : '',
+                    category: note.category?.slug || '',
+                    tags: note.tags.join(', '),
+                    examType: note.examType || '',
+                    university: note.university || '',
+                    semester: note.semester ? note.semester.toString() : '',
+                    branch: note.branch || '',
+                    subject: note.subject || '',
+                    language: note.language || 'English',
+                    pages: note.pages ? note.pages.toString() : '',
+                    previewPages: note.previewPages ? note.previewPages.toString() : '5',
+                    fileUrl: note.fileUrl || '',
+                    previewUrl: note.previewUrl || '',
+                    thumbnailUrl: note.thumbnailUrl || '',
+                    isFeatured: note.isFeatured,
+                    isPublished: note.isPublished,
+                });
+            } catch (error) {
+                console.error('Error fetching note:', error);
+                alert('Failed to load note details');
+                router.push('/admin/notes');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchNote();
+    }, [params.id, router]);
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -77,26 +119,34 @@ export default function NewNotePage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
+        setIsSaving(true);
 
         try {
-            const res = await fetch('/api/notes', {
-                method: 'POST',
+            const res = await fetch(`/api/notes/${params.id}`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
 
-            if (!res.ok) throw new Error('Failed to create note');
+            if (!res.ok) throw new Error('Failed to update note');
 
             router.push('/admin/notes');
             router.refresh();
         } catch (error) {
-            console.error('Submit error:', error);
-            alert('Failed to create note');
+            console.error('Update error:', error);
+            alert('Failed to update note');
         } finally {
-            setIsLoading(false);
+            setIsSaving(false);
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -106,8 +156,8 @@ export default function NewNotePage() {
                     <ArrowLeft className="w-5 h-5" />
                 </Link>
                 <div>
-                    <h1 className="text-2xl font-bold text-foreground">Add New Note</h1>
-                    <p className="text-muted-foreground">Create a new study material or digital note</p>
+                    <h1 className="text-2xl font-bold text-foreground">Edit Note</h1>
+                    <p className="text-muted-foreground">Update study material details</p>
                 </div>
             </div>
 
@@ -189,12 +239,18 @@ export default function NewNotePage() {
                                         ) : (
                                             <div>
                                                 <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                                                <p className="text-foreground font-medium mb-1">Click to upload or drag and drop</p>
+                                                <p className="text-foreground font-medium mb-1">
+                                                    {formData.fileUrl ? 'Click to replace file' : 'Click to upload or drag and drop'}
+                                                </p>
                                                 <p className="text-sm text-muted-foreground">PDF files only (max 50MB)</p>
                                             </div>
                                         )}
                                     </div>
-                                    {formData.fileUrl && <p className="text-xs text-green-600 mt-2">File uploaded successfully</p>}
+                                    {formData.fileUrl && !uploading && (
+                                        <div className="mt-2 flex items-center gap-2 text-sm text-blue-600">
+                                            <p>Current file: <a href={formData.fileUrl} target="_blank" rel="noopener noreferrer" className="underline">View PDF</a></p>
+                                        </div>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-foreground mb-2">
@@ -332,15 +388,12 @@ export default function NewNotePage() {
                                     <span className="text-foreground">Featured note</span>
                                 </label>
                                 <div className="pt-4 border-t border-border flex gap-3">
-                                    <button type="button" className="btn-secondary flex-1">
-                                        Save Draft
-                                    </button>
                                     <button
                                         type="submit"
-                                        disabled={isLoading || uploading}
+                                        disabled={isSaving || uploading}
                                         className="btn-primary flex-1 disabled:opacity-50"
                                     >
-                                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Publish'}
+                                        {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Update'}
                                     </button>
                                 </div>
                             </div>
