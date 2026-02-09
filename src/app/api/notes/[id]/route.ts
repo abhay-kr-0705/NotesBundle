@@ -56,7 +56,8 @@ export async function PUT(
             shortDescription,
             price,
             discountPrice,
-            categoryId,
+            category, // This is the slug from frontend
+            categoryId: directCategoryId,
             tags,
             examType,
             university,
@@ -71,7 +72,6 @@ export async function PUT(
             thumbnailUrl,
             isFeatured,
             isPublished,
-            publicId, // New field for Cloudinary public ID
         } = body;
 
         // Verify note exists
@@ -83,12 +83,20 @@ export async function PUT(
             return NextResponse.json({ error: 'Note not found' }, { status: 404 });
         }
 
-        // If a new file is uploaded (fileUrl changed) and old one exists, delete the old one
-        // Note: In a real app, you'd store the publicId in the database to delete it properly.
-        // For now, we'll assume the frontend passes the old publicId if available or we just manage the new one.
-        // Since we didn't store publicId in the Note model schema earlier, we might not be able to delete old files cleanly
-        // unless we extract publicId from the URL or update the schema.
-        // For this iteration, we'll proceed with updating the record.
+        // Get categoryId - either from direct ID or by looking up slug
+        let categoryId = directCategoryId;
+        if (!categoryId && category) {
+            const categoryRecord = await prisma.category.findUnique({
+                where: { slug: category },
+            });
+            if (!categoryRecord) {
+                return NextResponse.json(
+                    { error: `Category '${category}' not found` },
+                    { status: 400 }
+                );
+            }
+            categoryId = categoryRecord.id;
+        }
 
         const slug = title
             .toLowerCase()
@@ -102,22 +110,22 @@ export async function PUT(
                 title,
                 slug: slug !== existingNote.slug ? slug : undefined,
                 description,
-                shortDescription,
+                shortDescription: shortDescription || null,
                 price: parseFloat(price) || 0,
                 discountPrice: discountPrice ? parseFloat(discountPrice) : null,
-                categoryId,
-                tags: tags ? tags.split(',').map((t: string) => t.trim().toLowerCase()) : [],
-                examType,
-                university,
+                categoryId: categoryId || undefined,
+                tags: tags ? (typeof tags === 'string' ? tags.split(',').map((t: string) => t.trim().toLowerCase()) : tags) : [],
+                examType: examType || null,
+                university: university || null,
                 semester: semester ? parseInt(semester) : null,
-                branch,
-                subject,
-                language,
+                branch: branch || null,
+                subject: subject || null,
+                language: language || 'English',
                 pages: pages ? parseInt(pages) : null,
                 previewPages: parseInt(previewPages) || 5,
-                fileUrl,
-                previewUrl,
-                thumbnailUrl,
+                fileUrl: fileUrl || undefined,
+                previewUrl: previewUrl || undefined,
+                thumbnailUrl: thumbnailUrl || null,
                 isFeatured,
                 isPublished,
             },
@@ -127,7 +135,7 @@ export async function PUT(
     } catch (error) {
         console.error('Error updating note:', error);
         return NextResponse.json(
-            { error: 'Failed to update note' },
+            { error: 'Failed to update note', details: error instanceof Error ? error.message : 'Unknown error' },
             { status: 500 }
         );
     }

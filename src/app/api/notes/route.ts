@@ -92,7 +92,8 @@ export async function POST(request: Request) {
             shortDescription,
             price,
             discountPrice,
-            categoryId,
+            category, // This is the slug from frontend
+            categoryId: directCategoryId, // Allow direct ID if provided
             tags,
             examType,
             university,
@@ -109,6 +110,36 @@ export async function POST(request: Request) {
             isPublished,
         } = body;
 
+        // Validate required fields
+        if (!title || !description) {
+            return NextResponse.json(
+                { error: 'Title and description are required' },
+                { status: 400 }
+            );
+        }
+
+        // Get categoryId - either from direct ID or by looking up slug
+        let categoryId = directCategoryId;
+        if (!categoryId && category) {
+            const categoryRecord = await prisma.category.findUnique({
+                where: { slug: category },
+            });
+            if (!categoryRecord) {
+                return NextResponse.json(
+                    { error: `Category '${category}' not found` },
+                    { status: 400 }
+                );
+            }
+            categoryId = categoryRecord.id;
+        }
+
+        if (!categoryId) {
+            return NextResponse.json(
+                { error: 'Category is required' },
+                { status: 400 }
+            );
+        }
+
         // Generate slug from title
         const slug = title
             .toLowerCase()
@@ -116,27 +147,34 @@ export async function POST(request: Request) {
             .replace(/[\s_-]+/g, '-')
             .replace(/^-+|-+$/g, '');
 
+        // Check if slug already exists
+        const existingNote = await prisma.note.findUnique({
+            where: { slug },
+        });
+
+        const finalSlug = existingNote ? `${slug}-${Date.now()}` : slug;
+
         const note = await prisma.note.create({
             data: {
                 title,
-                slug,
+                slug: finalSlug,
                 description,
-                shortDescription,
+                shortDescription: shortDescription || null,
                 price: parseFloat(price) || 0,
                 discountPrice: discountPrice ? parseFloat(discountPrice) : null,
                 categoryId,
-                tags: tags ? tags.split(',').map((t: string) => t.trim().toLowerCase()) : [],
-                examType,
-                university,
+                tags: tags ? (typeof tags === 'string' ? tags.split(',').map((t: string) => t.trim().toLowerCase()) : tags) : [],
+                examType: examType || null,
+                university: university || null,
                 semester: semester ? parseInt(semester) : null,
-                branch,
-                subject,
+                branch: branch || null,
+                subject: subject || null,
                 language: language || 'English',
                 pages: pages ? parseInt(pages) : null,
                 previewPages: parseInt(previewPages) || 5,
-                fileUrl,
-                previewUrl,
-                thumbnailUrl,
+                fileUrl: fileUrl || null,
+                previewUrl: previewUrl || null,
+                thumbnailUrl: thumbnailUrl || null,
                 isFeatured: isFeatured || false,
                 isPublished: isPublished !== false,
             },
@@ -146,7 +184,7 @@ export async function POST(request: Request) {
     } catch (error) {
         console.error('Error creating note:', error);
         return NextResponse.json(
-            { error: 'Failed to create note' },
+            { error: 'Failed to create note', details: error instanceof Error ? error.message : 'Unknown error' },
             { status: 500 }
         );
     }

@@ -16,7 +16,9 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
     const [fileStats, setFileStats] = useState<{ name: string; size: number } | null>(null);
+    const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -69,6 +71,10 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
                     isFeatured: note.isFeatured,
                     isPublished: note.isPublished,
                 });
+                // Set thumbnail preview if thumbnail exists
+                if (note.thumbnailUrl) {
+                    setThumbnailPreview(note.thumbnailUrl);
+                }
             } catch (error) {
                 console.error('Error fetching note:', error);
                 alert('Failed to load note details');
@@ -254,15 +260,57 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-foreground mb-2">
-                                        Thumbnail Image URL
+                                        Thumbnail Image (Optional)
                                     </label>
-                                    <input
-                                        type="text"
-                                        value={formData.thumbnailUrl}
-                                        onChange={(e) => setFormData({ ...formData, thumbnailUrl: e.target.value })}
-                                        placeholder="https://..."
-                                        className="input"
-                                    />
+                                    <div className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary transition-colors cursor-pointer relative">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (!file) return;
+                                                if (!file.type.startsWith('image/')) {
+                                                    alert('Please upload an image file');
+                                                    return;
+                                                }
+                                                setUploadingThumbnail(true);
+                                                const data = new FormData();
+                                                data.append('file', file);
+                                                try {
+                                                    const res = await fetch('/api/upload/image', {
+                                                        method: 'POST',
+                                                        body: data,
+                                                    });
+                                                    if (!res.ok) throw new Error('Upload failed');
+                                                    const result = await res.json();
+                                                    setFormData(prev => ({ ...prev, thumbnailUrl: result.url }));
+                                                    setThumbnailPreview(result.url);
+                                                } catch (error) {
+                                                    console.error('Thumbnail upload error:', error);
+                                                    alert('Failed to upload thumbnail');
+                                                } finally {
+                                                    setUploadingThumbnail(false);
+                                                }
+                                            }}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        />
+                                        {uploadingThumbnail ? (
+                                            <div className="flex flex-col items-center">
+                                                <Loader2 className="w-8 h-8 text-primary animate-spin mb-2" />
+                                                <p className="text-sm">Uploading...</p>
+                                            </div>
+                                        ) : thumbnailPreview ? (
+                                            <div className="flex flex-col items-center">
+                                                <img src={thumbnailPreview} alt="Thumbnail" className="max-h-24 rounded mb-2" />
+                                                <p className="text-xs text-green-600">Thumbnail uploaded</p>
+                                            </div>
+                                        ) : (
+                                            <div>
+                                                <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                                                <p className="text-sm text-muted-foreground">PNG, JPG, WebP (max 5MB)</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
