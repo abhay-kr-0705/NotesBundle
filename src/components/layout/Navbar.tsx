@@ -69,23 +69,31 @@ export default function Navbar() {
                     <div className="hidden lg:flex items-center gap-8">
                         {/* Categories Dropdown */}
                         <div className="relative">
+                            {/* Category Menu Backdrop */}
+                            {isCategoryMenuOpen && (
+                                <div
+                                    className="fixed inset-0 z-10 cursor-default"
+                                    onClick={() => setIsCategoryMenuOpen(false)}
+                                />
+                            )}
+
                             <button
                                 onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
-                                onBlur={() => setTimeout(() => setIsCategoryMenuOpen(false), 200)}
-                                className="flex items-center gap-1 text-muted-foreground hover:text-foreground font-medium transition-colors"
+                                className="relative z-20 flex items-center gap-1 text-muted-foreground hover:text-foreground font-medium transition-colors"
                             >
                                 Categories
                                 <ChevronDown className={`w-4 h-4 transition-transform ${isCategoryMenuOpen ? 'rotate-180' : ''}`} />
                             </button>
 
                             {isCategoryMenuOpen && (
-                                <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-2xl shadow-strong border border-border p-2 animate-slide-down">
+                                <div className="absolute top-full left-0 z-20 mt-2 w-72 bg-white rounded-2xl shadow-strong border border-border p-2 animate-slide-down">
                                     {CATEGORIES.map((category) => {
                                         const Icon = categoryIcons[category.slug] || BookOpen;
                                         return (
                                             <Link
                                                 key={category.slug}
                                                 href={`/category/${category.slug}`}
+                                                onClick={() => setIsCategoryMenuOpen(false)}
                                                 className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-secondary transition-colors group"
                                             >
                                                 <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -147,10 +155,17 @@ export default function Navbar() {
                         {/* User Menu */}
                         {session ? (
                             <div className="relative hidden sm:block">
+                                {/* Backdrop */}
+                                {isUserMenuOpen && (
+                                    <div
+                                        className="fixed inset-0 z-10 cursor-default"
+                                        onClick={() => setIsUserMenuOpen(false)}
+                                    />
+                                )}
+
                                 <button
                                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                                    onBlur={() => setTimeout(() => setIsUserMenuOpen(false), 200)}
-                                    className="flex items-center gap-2 p-2 rounded-xl hover:bg-secondary transition-colors"
+                                    className="relative z-20 flex items-center gap-2 p-2 rounded-xl hover:bg-secondary transition-colors"
                                 >
                                     <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-semibold text-sm">
                                         {session.user?.name?.charAt(0) || 'U'}
@@ -159,7 +174,7 @@ export default function Navbar() {
                                 </button>
 
                                 {isUserMenuOpen && (
-                                    <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-2xl shadow-strong border border-border p-2 animate-slide-down">
+                                    <div className="absolute top-full right-0 z-20 mt-2 w-56 bg-white rounded-2xl shadow-strong border border-border p-2 animate-slide-down">
                                         <div className="px-4 py-3 border-b border-border">
                                             <p className="font-semibold text-foreground">{session.user?.name}</p>
                                             <p className="text-sm text-muted-foreground">{session.user?.email}</p>
@@ -167,6 +182,7 @@ export default function Navbar() {
                                         <div className="py-2">
                                             <Link
                                                 href="/profile"
+                                                onClick={() => setIsUserMenuOpen(false)}
                                                 className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-secondary transition-colors"
                                             >
                                                 <User className="w-4 h-4 text-muted-foreground" />
@@ -174,6 +190,7 @@ export default function Navbar() {
                                             </Link>
                                             <Link
                                                 href="/orders"
+                                                onClick={() => setIsUserMenuOpen(false)}
                                                 className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-secondary transition-colors"
                                             >
                                                 <FileText className="w-4 h-4 text-muted-foreground" />
@@ -181,6 +198,7 @@ export default function Navbar() {
                                             </Link>
                                             <Link
                                                 href="/wishlist"
+                                                onClick={() => setIsUserMenuOpen(false)}
                                                 className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-secondary transition-colors"
                                             >
                                                 <Heart className="w-4 h-4 text-muted-foreground" />
@@ -189,6 +207,7 @@ export default function Navbar() {
                                             {(session.user as any)?.role === 'ADMIN' && (
                                                 <Link
                                                     href="/admin"
+                                                    onClick={() => setIsUserMenuOpen(false)}
                                                     className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-secondary transition-colors text-primary font-medium"
                                                 >
                                                     <Settings className="w-4 h-4" />
