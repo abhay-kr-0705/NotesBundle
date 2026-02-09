@@ -17,8 +17,10 @@ import {
     CheckCircle,
     Clock,
     Share,
+    X,
 } from 'lucide-react';
 import { useCartStore } from '@/lib/store';
+import PDFPreview from '@/components/PDFPreview'; // Import the component
 
 interface NoteClientProps {
     note: any; // Type this properly if possible, or use any for now
@@ -28,6 +30,7 @@ interface NoteClientProps {
 export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [activeTab, setActiveTab] = useState('description');
+    const [showPreview, setShowPreview] = useState(false); // State for preview modal
     const router = useRouter();
     const addItem = useCartStore((state) => state.addItem);
     const isInCart = useCartStore((state) => state.isInCart);
@@ -75,16 +78,29 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
                     {/* Left Column - Preview & Details */}
                     <div className="lg:col-span-2">
                         {/* Preview Image */}
-                        <div className="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden">
+                        <div className="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden group">
                             {note.thumbnailUrl ? (
                                 <img src={note.thumbnailUrl} alt={note.title} className="w-full h-full object-cover" />
                             ) : (
                                 <BookOpen className="w-24 h-24 text-slate-300" />
                             )}
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                                <button className="btn bg-white text-foreground hover:scale-105 transition-transform duration-200 shadow-xl rounded-full px-6 py-3 font-medium">
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <button
+                                    onClick={() => setShowPreview(true)}
+                                    className="btn bg-white text-foreground hover:scale-105 transition-transform duration-200 shadow-xl rounded-full px-6 py-3 font-medium"
+                                >
                                     <Eye className="w-5 h-5 text-primary" />
                                     Preview ({note.previewPages || 5} pages)
+                                </button>
+                            </div>
+                            {/* Mobile visible preview button */}
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 lg:hidden">
+                                <button
+                                    onClick={() => setShowPreview(true)}
+                                    className="btn bg-white text-foreground shadow-xl rounded-full px-6 py-3 font-medium"
+                                >
+                                    <Eye className="w-5 h-5 text-primary" />
+                                    Preview
                                 </button>
                             </div>
                         </div>
@@ -319,6 +335,35 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
                     </div>
                 </div>
             </div>
+
+            {/* Preview Modal */}
+            {showPreview && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-card w-full max-w-4xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl relative flex flex-col">
+                        <div className="p-4 border-b border-border flex items-center justify-between bg-white dark:bg-slate-900 z-10">
+                            <h3 className="font-bold text-lg">Preview: {note.title}</h3>
+                            <button
+                                onClick={() => setShowPreview(false)}
+                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-auto p-4 bg-slate-100 dark:bg-slate-950 flex justify-center">
+                            <div className="w-full max-w-2xl">
+                                <PDFPreview
+                                    previewUrl={note.previewUrl || note.fileUrl}
+                                    previewPages={note.previewPages || 5}
+                                    noteTitle={note.title}
+                                    noteSlug={note.slug}
+                                    price={note.price}
+                                    discountPrice={note.discountPrice}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
