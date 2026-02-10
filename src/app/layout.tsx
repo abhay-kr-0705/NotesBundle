@@ -84,6 +84,9 @@ export const metadata: Metadata = {
             '/icons/icon-512x512.png',
         ],
     },
+    verification: {
+        google: 'l-Kp4culgSOdGiMZXHDZdtDAqnaOD_SI-yWjvMfZlfY',
+    },
 };
 
 export default function RootLayout({
