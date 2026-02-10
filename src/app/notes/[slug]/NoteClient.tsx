@@ -336,6 +336,55 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
                 </div>
             </div>
 
+
+            {/* Mobile Sticky Bottom Action Bar */}
+            <div className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-950 border-t border-border p-4 lg:hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col">
+                        <span className="text-xs text-muted-foreground">Price</span>
+                        <div className="flex items-baseline gap-2">
+                            {note.price === 0 ? (
+                                <span className="text-xl font-bold text-accent">Free</span>
+                            ) : (
+                                <>
+                                    <span className="text-xl font-bold text-foreground">
+                                        ₹{note.discountPrice || note.price}
+                                    </span>
+                                    {note.discountPrice && (
+                                        <span className="text-sm text-muted-foreground line-through hidden sm:inline">₹{note.price}</span>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3 flex-1 justify-end">
+                        {note.price === 0 ? (
+                            <button className="btn-primary w-full py-3 rounded-xl shadow-lg shadow-blue-500/20">
+                                <Download className="w-5 h-5 mr-2" />
+                                Download
+                            </button>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={handleAddToCart}
+                                    disabled={isInCart(note.id)}
+                                    className="btn-secondary p-3 rounded-xl flex-shrink-0 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                    aria-label="Add to Cart"
+                                >
+                                    <ShoppingCart className="w-5 h-5" />
+                                </button>
+                                <button
+                                    onClick={handleBuyNow}
+                                    className="btn-primary flex-1 py-3 rounded-xl font-semibold shadow-lg shadow-primary/25"
+                                >
+                                    Buy Now
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+
             {/* Preview Modal */}
             {showPreview && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
