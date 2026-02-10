@@ -94,6 +94,7 @@ export default function RootLayout({
                 <link rel="icon" href="/favicon.ico" sizes="any" />
                 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
                 <meta name="theme-color" content="#2563eb" />
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5736081163311751" crossOrigin="anonymous"></script>
             </head>
             <body className="min-h-screen flex flex-col">
                 <AuthProvider>
@@ -103,12 +104,6 @@ export default function RootLayout({
                     </main>
                     <Footer />
                 </AuthProvider>
-                <Script
-                    id="adsbygoogle-init"
-                    strategy="afterInteractive"
-                    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5736081163311751"
-                    crossOrigin="anonymous"
-                />
                 <meta name="google-adsense-account" content="ca-pub-5736081163311751" />
                 <script
                     type="application/ld+json"
