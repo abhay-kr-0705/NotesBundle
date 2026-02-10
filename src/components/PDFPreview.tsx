@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import { ChevronLeft, ChevronRight, Lock, ShoppingCart, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Lock, ShoppingCart, Loader2, Download } from 'lucide-react';
 import Link from 'next/link';
 
-// Set up PDF.js worker
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -31,9 +30,31 @@ export default function PDFPreview({
     const [pageNumber, setPageNumber] = useState<number>(1);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [pdfWidth, setPdfWidth] = useState<number>(600);
 
-    const maxPreviewPage = Math.min(previewPages, numPages);
-    const isLastPreviewPage = pageNumber >= maxPreviewPage;
+    const isFree = price === 0;
+
+    useEffect(() => {
+        function updateWidth() {
+            if (typeof window !== 'undefined') {
+                const containerWidth = window.innerWidth;
+                const maxWidth = 800;
+                // If mobile
+                if (containerWidth < 768) {
+                    setPdfWidth(containerWidth - 32); // margin
+                } else {
+                    setPdfWidth(Math.min(containerWidth - 64, maxWidth));
+                }
+            }
+        }
+
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
+        return () => window.removeEventListener('resize', updateWidth);
+    }, []);
+
+    const maxPreviewPage = isFree ? numPages : Math.min(previewPages, numPages);
+    const isLastPreviewPage = !isFree && pageNumber >= maxPreviewPage;
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
         setNumPages(numPages);
@@ -59,19 +80,33 @@ export default function PDFPreview({
     const displayPrice = discountPrice || price;
 
     return (
-        <div className="bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 flex flex-col h-[80vh]">
+        <div className="bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 flex flex-col h-[80vh] w-full">
             {/* Toolbar */}
-            <div className="flex items-center justify-between p-4 bg-zinc-900 border-b border-zinc-800 text-white z-10">
-                <div className="flex items-center gap-4">
-                    <span className="font-semibold text-lg max-w-[200px] truncate" title={noteTitle}>
+            <div className="flex items-center justify-between p-4 bg-zinc-900 border-b border-zinc-800 text-white z-10 shrink-0 gap-4">
+                <div className="flex items-center gap-4 min-w-0">
+                    <span className="font-semibold text-lg truncate" title={noteTitle}>
                         {noteTitle}
                     </span>
-                    <span className="text-xs px-2 py-1 bg-zinc-800 rounded text-zinc-400">
-                        Preview Mode
+                    <span className="text-xs px-2 py-1 bg-zinc-800 rounded text-zinc-400 hidden sm:inline-block whitespace-nowrap">
+                        {isFree ? 'Free Full Preview' : 'Preview Mode'}
                     </span>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 shrink-0">
+                    {/* Download Button for Free Notes */}
+                    {isFree && (
+                        <div className="flex bg-zinc-800 rounded-lg p-1 gap-1">
+                            <button
+                                onClick={() => window.open(previewUrl, '_blank')}
+                                className="p-1.5 hover:bg-zinc-700 rounded text-zinc-400 hover:text-white"
+                                title="Download PDF"
+                            >
+                                <Download className="w-5 h-5" />
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Zoom Controls */}
                     <div className="flex bg-zinc-800 rounded-lg p-1 gap-1">
                         <button
                             onClick={() => setScale(s => Math.max(0.5, s - 0.1))}
@@ -95,7 +130,7 @@ export default function PDFPreview({
             </div>
 
             {/* PDF Viewer */}
-            <div className="relative flex-1 bg-zinc-950 overflow-auto flex justify-center p-8">
+            <div className="relative flex-1 bg-zinc-950 overflow-auto flex justify-center p-4 md:p-8 custom-scrollbar">
                 {loading && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-400 z-10">
                         <Loader2 className="w-10 h-10 animate-spin mb-4 text-primary" />
@@ -116,7 +151,7 @@ export default function PDFPreview({
                 )}
 
                 {!error && (
-                    <div className="relative shadow-2xl transition-transform duration-200 ease-out" style={{ transform: `scale(${scale})`, transformOrigin: 'top center' }}>
+                    <div className="relative shadow-2xl">
                         <Document
                             file={previewUrl}
                             onLoadSuccess={onDocumentLoadSuccess}
@@ -126,18 +161,19 @@ export default function PDFPreview({
                         >
                             <Page
                                 pageNumber={pageNumber}
-                                width={500}
+                                scale={scale}
+                                width={pdfWidth}
                                 renderTextLayer={false}
                                 renderAnnotationLayer={false}
                                 className="bg-white"
                             />
                         </Document>
 
-                        {/* Overlay for last preview page */}
+                        {/* Overlay for last preview page (Only for Paid Notes) */}
                         {isLastPreviewPage && !loading && (
-                            <div className="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-zinc-900 via-zinc-900/90 to-transparent flex flex-col items-center justify-end pb-12 z-20">
+                            <div className="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-zinc-900 via-zinc-900/95 to-transparent flex flex-col items-center justify-end pb-12 z-20">
                                 <Lock className="w-12 h-12 text-white mb-4 drop-shadow-lg" />
-                                <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-md">
+                                <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-md text-center">
                                     Unlock Full Access
                                 </h3>
                                 <p className="text-zinc-300 mb-6 text-center max-w-sm drop-shadow-sm px-4">
