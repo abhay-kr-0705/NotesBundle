@@ -21,6 +21,11 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     // SUPER ADMIN SECURITY: Allow hardcoded super admin regardless of DB role
     const isSuperAdmin = session.user.email === 'notesbundle@outlook.com';
 
+    // Explicitly block the Razorpay test account to ensure it never accesses admin
+    if (session.user.email === 'admin@notesbundle.com') {
+        redirect('/');
+    }
+
     if (!isSuperAdmin && (!user || user.role !== 'ADMIN')) {
         redirect('/');
     }

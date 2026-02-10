@@ -1,0 +1,2 @@
+Found user admin@notesbundle.com. Current Role: ADMIN
+Successfully demoted admin@notesbundle.com to USER.
