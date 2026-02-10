@@ -1,4 +1,4 @@
-// This is a placeholder replace. I'll create the component file first.
+
 import Link from 'next/link';
 import {
     Grid3X3,

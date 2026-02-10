@@ -1,5 +1,6 @@
-// This is a placeholder replace. I'll do the view first.
-// Please ignore for now, I will use read_file toolimport { useState, useEffect } from 'react';
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
