@@ -1,6 +1,5 @@
-'use client';
-
-import { useState } from 'react';
+// This is a placeholder replace. I'll do the view first.
+// Please ignore for now, I will use read_file toolimport { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -9,7 +8,13 @@ import {
     X,
     Loader2
 } from 'lucide-react';
-import { CATEGORIES, BRANCHES } from '@/lib/constants';
+import { BRANCHES } from '@/lib/constants';
+
+interface Category {
+    id: string;
+    name: string;
+    slug: string;
+}
 
 export default function NewNotePage() {
     const router = useRouter();
@@ -18,13 +23,31 @@ export default function NewNotePage() {
     const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
     const [fileStats, setFileStats] = useState<{ name: string; size: number } | null>(null);
     const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+    const [categories, setCategories] = useState<Category[]>([]);
+
+    // Fetch categories
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await fetch('/api/admin/categories');
+                if (res.ok) {
+                    const data = await res.json();
+                    setCategories(data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch categories:', error);
+            }
+        };
+        fetchCategories();
+    }, []);
+
     const [formData, setFormData] = useState({
         title: '',
         description: '',
         shortDescription: '',
         price: '',
         discountPrice: '',
-        category: '',
+        categoryId: '', // Use ID instead of slug
         tags: '',
         examType: '',
         university: '',
@@ -394,14 +417,14 @@ export default function NewNotePage() {
                         <div className="card p-6">
                             <h2 className="font-semibold text-foreground mb-4">Category</h2>
                             <select
-                                value={formData.category}
-                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                value={formData.categoryId}
+                                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
                                 className="input"
                                 required
                             >
                                 <option value="">Select Category</option>
-                                {CATEGORIES.map((cat) => (
-                                    <option key={cat.slug} value={cat.slug}>{cat.name}</option>
+                                {categories.map((cat) => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
                                 ))}
                             </select>
                         </div>

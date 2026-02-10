@@ -6,10 +6,8 @@ import { ChevronLeft, ChevronRight, Lock, ShoppingCart, Loader2 } from 'lucide-r
 import Link from 'next/link';
 
 // Set up PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.mjs',
-    import.meta.url,
-).toString();
+// Set up PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface PDFPreviewProps {
     previewUrl: string;

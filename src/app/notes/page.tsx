@@ -1,18 +1,18 @@
+// This is a placeholder replace. I'll create the component file first.
 import Link from 'next/link';
 import {
-    Search,
-    Filter,
     Grid3X3,
     List,
     Star,
     BookOpen,
     ChevronRight,
-    SlidersHorizontal
 } from 'lucide-react';
-import { CATEGORIES } from '@/lib/constants';
+import NotesFilter from '@/components/NotesFilter'; // Import Client Component
 
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
+
+export const dynamic = 'force-dynamic'; // Force dynamic rendering for search params
 
 export default async function NotesPage({
     searchParams,
@@ -20,7 +20,13 @@ export default async function NotesPage({
     searchParams: { [key: string]: string | string[] | undefined };
 }) {
     // Parse search params
-    const category = typeof searchParams.category === 'string' ? searchParams.category : undefined;
+    const categoryParam = searchParams.category;
+    const selectedCategories = Array.isArray(categoryParam)
+        ? categoryParam
+        : categoryParam
+            ? [categoryParam]
+            : [];
+
     const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
     const priceRange = typeof searchParams.price === 'string' ? searchParams.price : undefined;
     const minRating = typeof searchParams.rating === 'string' ? parseInt(searchParams.rating) : undefined;
@@ -28,13 +34,25 @@ export default async function NotesPage({
     const page = typeof searchParams.page === 'string' ? parseInt(searchParams.page) : 1;
     const limit = 12;
 
+    // Fetch categories for filter
+    const categories = await prisma.category.findMany({
+        orderBy: { name: 'asc' },
+        include: {
+            _count: {
+                select: { notes: true }
+            }
+        }
+    });
+
     // Build where clause
     const where: Prisma.NoteWhereInput = {
         isPublished: true,
     };
 
-    if (category) {
-        where.category = { slug: category };
+    if (selectedCategories.length > 0) {
+        where.category = {
+            slug: { in: selectedCategories }
+        };
     }
 
     if (search) {
@@ -123,86 +141,7 @@ export default async function NotesPage({
             <div className="container-custom py-8">
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Sidebar Filters */}
-                    <aside className="lg:w-72 shrink-0">
-                        <div className="card p-6 sticky top-24">
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="font-semibold text-foreground flex items-center gap-2">
-                                    <SlidersHorizontal className="w-5 h-5" />
-                                    Filters
-                                </h2>
-                                <button className="text-sm text-primary hover:underline">Clear all</button>
-                            </div>
-
-                            {/* Search */}
-                            <div className="mb-6">
-                                <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                    <input
-                                        type="text"
-                                        placeholder="Search notes..."
-                                        className="input pl-10 py-2.5 text-sm"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Categories */}
-                            <div className="mb-6">
-                                <h3 className="font-medium text-foreground mb-3">Categories</h3>
-                                <div className="space-y-2">
-                                    {CATEGORIES.map((category) => (
-                                        <label key={category.slug} className="flex items-center gap-3 cursor-pointer group">
-                                            <input type="checkbox" className="w-4 h-4 rounded border-border text-primary focus:ring-primary" />
-                                            <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-                                                {category.name}
-                                            </span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Price Range */}
-                            <div className="mb-6">
-                                <h3 className="font-medium text-foreground mb-3">Price</h3>
-                                <div className="space-y-2">
-                                    <label className="flex items-center gap-3 cursor-pointer group">
-                                        <input type="radio" name="price" className="w-4 h-4 border-border text-primary focus:ring-primary" />
-                                        <span className="text-muted-foreground group-hover:text-foreground transition-colors">All</span>
-                                    </label>
-                                    <label className="flex items-center gap-3 cursor-pointer group">
-                                        <input type="radio" name="price" className="w-4 h-4 border-border text-primary focus:ring-primary" />
-                                        <span className="text-muted-foreground group-hover:text-foreground transition-colors">Free</span>
-                                    </label>
-                                    <label className="flex items-center gap-3 cursor-pointer group">
-                                        <input type="radio" name="price" className="w-4 h-4 border-border text-primary focus:ring-primary" />
-                                        <span className="text-muted-foreground group-hover:text-foreground transition-colors">Under ₹100</span>
-                                    </label>
-                                    <label className="flex items-center gap-3 cursor-pointer group">
-                                        <input type="radio" name="price" className="w-4 h-4 border-border text-primary focus:ring-primary" />
-                                        <span className="text-muted-foreground group-hover:text-foreground transition-colors">₹100 - ₹200</span>
-                                    </label>
-                                    <label className="flex items-center gap-3 cursor-pointer group">
-                                        <input type="radio" name="price" className="w-4 h-4 border-border text-primary focus:ring-primary" />
-                                        <span className="text-muted-foreground group-hover:text-foreground transition-colors">Above ₹200</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            {/* Rating */}
-                            <div>
-                                <h3 className="font-medium text-foreground mb-3">Rating</h3>
-                                <div className="space-y-2">
-                                    {[4, 3, 2].map((rating) => (
-                                        <label key={rating} className="flex items-center gap-3 cursor-pointer group">
-                                            <input type="checkbox" className="w-4 h-4 rounded border-border text-primary focus:ring-primary" />
-                                            <span className="flex items-center gap-1 text-muted-foreground group-hover:text-foreground transition-colors">
-                                                {rating}+ <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                                            </span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
+                    <NotesFilter categories={categories} />
 
                     {/* Notes Grid */}
                     <div className="flex-1">
