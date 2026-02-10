@@ -9,68 +9,56 @@ import {
     Eye,
     Download,
     ArrowRight,
-    MoreVertical
 } from 'lucide-react';
+import { getDashboardStats } from '@/lib/admin';
 
-// Sample analytics data (will be replaced with database query)
-const stats = [
-    {
-        title: 'Total Revenue',
-        value: '₹1,25,430',
-        change: '+12.5%',
-        trend: 'up',
-        icon: DollarSign,
-        color: 'bg-emerald-500',
-    },
-    {
-        title: 'Total Orders',
-        value: '1,234',
-        change: '+8.2%',
-        trend: 'up',
-        icon: ShoppingCart,
-        color: 'bg-blue-500',
-    },
-    {
-        title: 'Total Users',
-        value: '5,678',
-        change: '+15.3%',
-        trend: 'up',
-        icon: Users,
-        color: 'bg-violet-500',
-    },
-    {
-        title: 'Total Notes',
-        value: '156',
-        change: '+3',
-        trend: 'up',
-        icon: BookOpen,
-        color: 'bg-amber-500',
-    },
-];
+export const dynamic = 'force-dynamic';
 
-const recentOrders = [
-    { id: 'ORD-001', customer: 'Rahul Kumar', email: 'rahul@email.com', amount: 199, status: 'completed', date: '2024-01-15' },
-    { id: 'ORD-002', customer: 'Priya Singh', email: 'priya@email.com', amount: 299, status: 'completed', date: '2024-01-15' },
-    { id: 'ORD-003', customer: 'Amit Verma', email: 'amit@email.com', amount: 149, status: 'pending', date: '2024-01-14' },
-    { id: 'ORD-004', customer: 'Neha Sharma', email: 'neha@email.com', amount: 399, status: 'completed', date: '2024-01-14' },
-    { id: 'ORD-005', customer: 'Vikash Yadav', email: 'vikash@email.com', amount: 199, status: 'failed', date: '2024-01-13' },
-];
+export default async function AdminDashboard() {
+    const data = await getDashboardStats();
 
-const topNotes = [
-    { id: '1', title: 'Complete GATE CSE Notes 2024', views: 15234, downloads: 1520, revenue: 30380 },
-    { id: '2', title: 'BEU 3rd Semester All Subjects', views: 8923, downloads: 890, revenue: 17711 },
-    { id: '3', title: 'SSC CGL Complete Preparation', views: 23456, downloads: 2340, revenue: 0 },
-    { id: '4', title: 'Python Programming Notes', views: 11023, downloads: 1100, revenue: 10890 },
-    { id: '5', title: 'GATE ECE Previous Year Papers', views: 18934, downloads: 1890, revenue: 33831 },
-];
+    const stats = [
+        {
+            title: 'Total Revenue',
+            value: `₹${data.revenue.toLocaleString()}`,
+            change: '+0%', // Placeholder for now or calculate if needed
+            trend: 'up',
+            icon: DollarSign,
+            color: 'bg-emerald-500',
+        },
+        {
+            title: 'Total Orders',
+            value: data.orders.toLocaleString(),
+            change: '+0%',
+            trend: 'up',
+            icon: ShoppingCart,
+            color: 'bg-blue-500',
+        },
+        {
+            title: 'Total Users',
+            value: data.users.toLocaleString(),
+            change: '+0%',
+            trend: 'up',
+            icon: Users,
+            color: 'bg-violet-500',
+        },
+        {
+            title: 'Total Notes',
+            value: data.notes.toLocaleString(),
+            change: '+0%',
+            trend: 'up',
+            icon: BookOpen,
+            color: 'bg-amber-500',
+        },
+    ];
 
-const statusColors: { [key: string]: string } = {
-    completed: 'bg-emerald-100 text-emerald-700',
-    pending: 'bg-amber-100 text-amber-700',
-    failed: 'bg-red-100 text-red-700',
-};
+    const statusColors: { [key: string]: string } = {
+        COMPLETED: 'bg-emerald-100 text-emerald-700',
+        PAID: 'bg-emerald-100 text-emerald-700',
+        PENDING: 'bg-amber-100 text-amber-700',
+        FAILED: 'bg-red-100 text-red-700',
+    };
 
-export default function AdminDashboard() {
     return (
         <div>
             {/* Header */}
@@ -87,11 +75,11 @@ export default function AdminDashboard() {
                             <div className={`w-12 h-12 ${stat.color} rounded-xl flex items-center justify-center`}>
                                 <stat.icon className="w-6 h-6 text-white" />
                             </div>
-                            <span className={`flex items-center gap-1 text-sm font-medium ${stat.trend === 'up' ? 'text-emerald-600' : 'text-red-600'
+                            {/* <span className={`flex items-center gap-1 text-sm font-medium ${stat.trend === 'up' ? 'text-emerald-600' : 'text-red-600'
                                 }`}>
                                 {stat.trend === 'up' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
                                 {stat.change}
-                            </span>
+                            </span> */}
                         </div>
                         <p className="text-2xl font-bold text-foreground mb-1">{stat.value}</p>
                         <p className="text-sm text-muted-foreground">{stat.title}</p>
@@ -120,22 +108,30 @@ export default function AdminDashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {recentOrders.map((order) => (
-                                    <tr key={order.id} className="border-b border-border last:border-0 hover:bg-slate-50">
-                                        <td className="p-4 font-medium text-primary">{order.id}</td>
-                                        <td className="p-4">
-                                            <p className="font-medium text-foreground">{order.customer}</p>
-                                            <p className="text-sm text-muted-foreground">{order.email}</p>
-                                        </td>
-                                        <td className="p-4 font-semibold">₹{order.amount}</td>
-                                        <td className="p-4">
-                                            <span className={`badge ${statusColors[order.status]} capitalize`}>
-                                                {order.status}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-muted-foreground">{order.date}</td>
+                                {data.recentOrders.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="p-8 text-center text-muted-foreground">No orders yet</td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    data.recentOrders.map((order) => (
+                                        <tr key={order.id} className="border-b border-border last:border-0 hover:bg-slate-50">
+                                            <td className="p-4 font-medium text-primary text-xs font-mono">{order.id.slice(-6).toUpperCase()}</td>
+                                            <td className="p-4">
+                                                <p className="font-medium text-foreground">{order.user?.name || 'Unknown'}</p>
+                                                <p className="text-sm text-muted-foreground">{order.user?.email}</p>
+                                            </td>
+                                            <td className="p-4 font-semibold">₹{order.finalAmount}</td>
+                                            <td className="p-4">
+                                                <span className={`badge ${statusColors[order.status] || 'bg-slate-100'} capitalize`}>
+                                                    {order.status.toLowerCase()}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 text-muted-foreground text-sm">
+                                                {new Date(order.createdAt).toLocaleDateString()}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -150,46 +146,117 @@ export default function AdminDashboard() {
                         </Link>
                     </div>
                     <div className="p-4 space-y-4">
-                        {topNotes.map((note, index) => (
-                            <div key={note.id} className="flex items-start gap-3">
-                                <span className="w-6 h-6 bg-secondary rounded-md flex items-center justify-center text-sm font-semibold text-muted-foreground">
-                                    {index + 1}
-                                </span>
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-foreground truncate">{note.title}</p>
-                                    <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                                        <span className="flex items-center gap-1">
-                                            <Eye className="w-3.5 h-3.5" /> {note.views.toLocaleString()}
-                                        </span>
-                                        <span className="flex items-center gap-1">
-                                            <Download className="w-3.5 h-3.5" /> {note.downloads.toLocaleString()}
-                                        </span>
+                        {data.topNotes.length === 0 ? (
+                            <p className="text-center text-muted-foreground py-4">No notes found</p>
+                        ) : (
+                            data.topNotes.map((note, index) => (
+                                <div key={note.id} className="flex items-start gap-3">
+                                    <span className="w-6 h-6 bg-secondary rounded-md flex items-center justify-center text-sm font-semibold text-muted-foreground">
+                                        {index + 1}
+                                    </span>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-medium text-foreground truncate">{note.title}</p>
+                                        <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                                            <span className="flex items-center gap-1">
+                                                <Eye className="w-3.5 h-3.5" /> {note.viewCount.toLocaleString()}
+                                            </span>
+                                            <span className="flex items-center gap-1">
+                                                <Download className="w-3.5 h-3.5" /> {note.downloadCount.toLocaleString()}
+                                            </span>
+                                        </div>
                                     </div>
+                                    <p className="font-semibold text-foreground text-sm">
+                                        {note.price > 0 ? `₹${note.price}` : 'Free'}
+                                    </p>
                                 </div>
-                                <p className="font-semibold text-foreground">
-                                    {note.revenue > 0 ? `₹${note.revenue.toLocaleString()}` : 'Free'}
-                                </p>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* Quick Stats Chart Placeholder */}
+            {/* Quick Stats Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                 <div className="card p-6">
-                    <h2 className="font-semibold text-foreground mb-4">Revenue Overview</h2>
-                    <div className="h-64 bg-gradient-to-br from-slate-100 to-slate-50 rounded-xl flex items-center justify-center">
-                        <p className="text-muted-foreground">Revenue chart will be displayed here</p>
+                    <h2 className="font-semibold text-foreground mb-4">Revenue Overview (Last 7 Days)</h2>
+                    <div className="h-64 flex items-end justify-between gap-2">
+                        {data.dailyRevenue.length === 0 ? (
+                            <div className="w-full h-full flex items-center justify-center bg-slate-50 rounded-lg">
+                                <p className="text-muted-foreground">No revenue data yet</p>
+                            </div>
+                        ) : (
+                            // Simple Bar Chart Visualization
+                            // Group orders by day first
+                            (() => {
+                                const days = Array.from({ length: 7 }, (_, i) => {
+                                    const d = new Date();
+                                    d.setDate(d.getDate() - 6 + i); // Last 7 days including today
+                                    return d.toISOString().split('T')[0];
+                                });
+
+                                const grouped = data.dailyRevenue.reduce((acc: any, order) => {
+                                    const date = new Date(order.createdAt).toISOString().split('T')[0];
+                                    acc[date] = (acc[date] || 0) + order.finalAmount;
+                                    return acc;
+                                }, {});
+
+                                const maxVal = Math.max(...Object.values(grouped).map(v => Number(v)), 1) as number;
+
+                                return days.map(day => {
+                                    const val = grouped[day] || 0;
+                                    const height = (val / maxVal) * 100;
+                                    return (
+                                        <div key={day} className="flex-1 flex flex-col items-center justify-end h-full group">
+                                            <div className="w-full max-w-[40px] bg-emerald-500/80 rounded-t-md hover:bg-emerald-500 transition-all relative" style={{ height: `${height}%`, minHeight: '4px' }}>
+                                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                                    ₹{val}
+                                                </div>
+                                            </div>
+                                            <span className="text-xs text-muted-foreground mt-2">{new Date(day).getDate()}</span>
+                                        </div>
+                                    );
+                                });
+                            })()
+                        )}
                     </div>
                 </div>
                 <div className="card p-6">
-                    <h2 className="font-semibold text-foreground mb-4">Traffic Overview</h2>
-                    <div className="h-64 bg-gradient-to-br from-slate-100 to-slate-50 rounded-xl flex items-center justify-center">
-                        <p className="text-muted-foreground">Traffic chart will be displayed here</p>
+                    <h2 className="font-semibold text-foreground mb-4">Traffic Overview (Last 7 Days)</h2>
+                    <div className="h-64 flex items-end justify-between gap-2">
+                        {Object.keys(data.dailyTraffic).length === 0 ? (
+                            <div className="w-full h-full flex items-center justify-center bg-slate-50 rounded-lg">
+                                <p className="text-muted-foreground">No traffic data yet</p>
+                            </div>
+                        ) : (
+                            (() => {
+                                const days = Array.from({ length: 7 }, (_, i) => {
+                                    const d = new Date();
+                                    d.setDate(d.getDate() - 6 + i);
+                                    return d.toISOString().split('T')[0];
+                                });
+
+                                const maxVal = Math.max(...Object.values(data.dailyTraffic).map(v => Number(v)), 1) as number;
+
+                                return days.map(day => {
+                                    const val = data.dailyTraffic[day] || 0;
+                                    const height = (val / maxVal) * 100;
+                                    return (
+                                        <div key={day} className="flex-1 flex flex-col items-center justify-end h-full group">
+                                            <div className="w-full max-w-[40px] bg-blue-500/80 rounded-t-md hover:bg-blue-500 transition-all relative" style={{ height: `${height}%`, minHeight: '4px' }}>
+                                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                                    {val} views
+                                                </div>
+                                            </div>
+                                            <span className="text-xs text-muted-foreground mt-2">{new Date(day).getDate()}</span>
+                                        </div>
+                                    );
+                                });
+                            })()
+                        )}
                     </div>
                 </div>
             </div>
         </div>
     );
 }
+
