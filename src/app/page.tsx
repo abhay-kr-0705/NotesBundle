@@ -15,6 +15,7 @@ import {
     Sparkles
 } from 'lucide-react';
 import { CATEGORIES } from '@/lib/constants';
+import PopularTags from '@/components/seo/PopularTags';
 
 const categoryIcons: { [key: string]: any } = {
     'gate': GraduationCap,
@@ -411,6 +412,8 @@ export default async function Home() {
                     </div>
                 </div>
             </section>
+            {/* Popular SEO Tags */}
+            <PopularTags />
         </div>
     );
 }

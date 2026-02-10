@@ -65,6 +65,57 @@ const sampleNotes = [
     },
 ];
 
+import { Metadata } from 'next';
+import { SEO_KEYWORDS } from '@/lib/seo-keywords';
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+    const category = CATEGORIES.find(c => c.slug === params.slug);
+
+    if (!category) {
+        return {
+            title: 'Category Not Found',
+        };
+    }
+
+    // Determine relevant keywords based on category slug
+    let relevantKeywords: string[] = [];
+
+    if (params.slug.includes('gate') || params.slug.includes('engineering')) {
+        relevantKeywords = [...SEO_KEYWORDS.engineering, ...SEO_KEYWORDS.biharSpecial];
+    } else if (params.slug.includes('competitive') || params.slug.includes('ssc') || params.slug.includes('railway')) {
+        relevantKeywords = [...SEO_KEYWORDS.generalCompetition, ...SEO_KEYWORDS.biharSpecial];
+    } else if (params.slug.includes('coding')) {
+        relevantKeywords = [...SEO_KEYWORDS.engineering];
+    } else {
+        relevantKeywords = [...SEO_KEYWORDS.studentSlang, ...SEO_KEYWORDS.buyerIntent];
+    }
+
+    // specific handling for BEU/Bihar
+    if (params.slug === 'beu' || params.slug === 'bihar-police') {
+        relevantKeywords = [...SEO_KEYWORDS.biharSpecial, ...relevantKeywords];
+    }
+
+    // Deduplicate
+    relevantKeywords = Array.from(new Set(relevantKeywords));
+
+    return {
+        title: `${category.name} Notes & Study Material | Download PDF`,
+        description: `${category.description}. Download high-quality ${category.name} notes, PYQs, and study materials. Updated for 2026 exams.`,
+        keywords: [
+            category.name,
+            `${category.name} notes`,
+            `${category.name} pdf download`,
+            `${category.name} study material`,
+            ...relevantKeywords.slice(0, 15) // Limit to top 15 relevant keywords to avoid stuffing
+        ],
+        openGraph: {
+            title: `${category.name} Notes | NotesBundle`,
+            description: category.description,
+            type: 'website',
+        }
+    };
+}
+
 export default function CategoryPage({ params }: { params: { slug: string } }) {
     const category = CATEGORIES.find(c => c.slug === params.slug);
     const Icon = categoryIcons[params.slug] || BookOpen;

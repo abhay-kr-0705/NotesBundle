@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import AuthProvider from '@/components/providers/AuthProvider';
+import { GLOBAL_KEYWORDS } from '@/lib/seo-keywords';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -25,15 +27,7 @@ export const metadata: Metadata = {
     keywords: [
         'study notes',
         'GATE preparation',
-        'engineering notes',
-        'BEU notes',
-        'SSC preparation',
-        'UPSC notes',
-        'coding notes',
-        'PYQs',
-        'competitive exam',
-        'digital notes',
-        'handwritten notes',
+        ...GLOBAL_KEYWORDS
     ],
     authors: [{ name: 'NotesBundle' }],
     creator: 'NotesBundle',
@@ -109,6 +103,13 @@ export default function RootLayout({
                     </main>
                     <Footer />
                 </AuthProvider>
+                <Script
+                    id="adsbygoogle-init"
+                    strategy="afterInteractive"
+                    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5736081163311751"
+                    crossOrigin="anonymous"
+                />
+                <meta name="google-adsense-account" content="ca-pub-5736081163311751" />
             </body>
         </html>
     );
