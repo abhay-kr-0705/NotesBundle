@@ -74,6 +74,7 @@ export async function POST(request: Request) {
             const previewResult = await uploadToCloudinary(previewBuffer, {
                 folder: 'notesbundle/previews',
                 publicId: `preview-${publicId}`,
+                resourceType: 'image', // Use image type for public access to PDF
             });
 
             previewUrl = previewResult.secure_url;

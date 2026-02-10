@@ -56,13 +56,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     </button>
 
                     {/* Desktop Sidebar Toggle */}
-                    <button
-                        onClick={() => setIsCollapsed(!isCollapsed)}
-                        className="hidden lg:flex p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
-                        title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-                    >
-                        {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
-                    </button>
+
 
                     <div className="lg:hidden flex items-center gap-2">
                         <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
@@ -141,7 +135,17 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     })}
                 </nav>
 
-                <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-border">
+                <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-border space-y-2">
+                    <button
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                        className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground font-medium transition-colors ${isCollapsed ? 'justify-center' : ''}`}
+                        title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                    >
+                        {isCollapsed ? <PanelLeftOpen className="w-5 h-5 flex-shrink-0" /> : <PanelLeftClose className="w-5 h-5 flex-shrink-0" />}
+                        <span className={`whitespace-nowrap transition-all duration-300 ${isCollapsed ? 'lg:w-0 lg:opacity-0 lg:hidden' : 'opacity-100'}`}>
+                            Collapse Sidebar
+                        </span>
+                    </button>
                     <Link
                         href="/"
                         title={isCollapsed ? "Back to Site" : ""}
