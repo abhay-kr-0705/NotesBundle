@@ -15,7 +15,11 @@ import {
     X,
     LogOut,
     ChevronDown,
-    Bell
+    Bell,
+    ChevronLeft,
+    ChevronRight,
+    PanelLeftClose,
+    PanelLeftOpen
 } from 'lucide-react';
 
 const sidebarLinks = [
@@ -30,7 +34,8 @@ const sidebarLinks = [
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
     const pathname = usePathname();
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
         <div className="min-h-screen bg-slate-50 pt-0">
@@ -41,14 +46,24 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       `}</style>
 
             {/* Admin Header */}
-            <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-border z-40 flex items-center justify-between px-4 lg:pl-64">
+            <header className={`fixed top-0 left-0 right-0 h-16 bg-white border-b border-border z-40 flex items-center justify-between px-4 transition-all duration-300 ${isCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
                 <div className="flex items-center gap-4">
                     <button
-                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         className="lg:hidden p-2 rounded-lg hover:bg-secondary"
                     >
                         <Menu className="w-6 h-6" />
                     </button>
+
+                    {/* Desktop Sidebar Toggle */}
+                    <button
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                        className="hidden lg:flex p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                        title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                    >
+                        {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+                    </button>
+
                     <div className="lg:hidden flex items-center gap-2">
                         <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                             <BookOpen className="w-5 h-5 text-white" />
@@ -73,63 +88,83 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </header>
 
             {/* Sidebar */}
-            <aside className={`fixed top-0 left-0 w-64 h-full bg-white border-r border-border z-50 transform transition-transform lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                <div className="h-16 flex items-center justify-between px-6 border-b border-border">
-                    <Link href="/admin" className="flex items-center gap-2">
-                        <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
+            <aside className={`fixed top-0 left-0 h-full bg-white border-r border-border z-50 transition-all duration-300 
+                ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+                ${isCollapsed ? 'lg:w-20' : 'lg:w-64'} 
+                w-64`}
+            >
+                <div className={`h-16 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between px-6'} border-b border-border transition-all duration-300 overflow-hidden`}>
+                    <Link href="/admin" className="flex items-center gap-2 min-w-max">
+                        <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center flex-shrink-0">
                             <BookOpen className="w-6 h-6 text-white" />
                         </div>
-                        <div>
+                        <div className={`transition-opacity duration-300 ${isCollapsed ? 'lg:opacity-0 lg:w-0 lg:hidden' : 'opacity-100'}`}>
                             <span className="font-bold text-foreground">NotesBundle</span>
                             <span className="block text-xs text-muted-foreground">Admin Panel</span>
                         </div>
                     </Link>
-                    <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-1.5 rounded-lg hover:bg-secondary">
+                    <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden p-1.5 rounded-lg hover:bg-secondary">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
-                <nav className="p-4 space-y-1">
+                <nav className="p-3 space-y-1 mt-2">
                     {sidebarLinks.map((link) => {
                         const isActive = pathname === link.href || (link.href !== '/admin' && pathname.startsWith(link.href));
                         return (
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                onClick={() => setIsSidebarOpen(false)}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isActive
-                                        ? 'bg-primary text-white'
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                title={isCollapsed ? link.name : ''}
+                                className={`flex items-center gap-3 px-3 py-3 rounded-xl font-medium transition-all duration-200 group relative
+                                    ${isActive
+                                        ? 'bg-primary text-white shadow-md shadow-primary/25'
                                         : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                                    }`}
+                                    }
+                                    ${isCollapsed ? 'justify-center' : ''}
+                                `}
                             >
-                                <link.icon className="w-5 h-5" />
-                                {link.name}
+                                <link.icon className={`w-5 h-5 flex-shrink-0 ${isCollapsed && !isActive ? 'group-hover:scale-110 transition-transform' : ''}`} />
+                                <span className={`whitespace-nowrap transition-all duration-300 ${isCollapsed ? 'lg:w-0 lg:opacity-0 lg:hidden' : 'opacity-100'}`}>
+                                    {link.name}
+                                </span>
+
+                                {/* Tooltip for collapsed state */}
+                                {isCollapsed && (
+                                    <div className="hidden lg:group-hover:block absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none">
+                                        {link.name}
+                                    </div>
+                                )}
                             </Link>
                         );
                     })}
                 </nav>
 
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
+                <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-border">
                     <Link
                         href="/"
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground font-medium transition-colors"
+                        title={isCollapsed ? "Back to Site" : ""}
+                        className={`flex items-center gap-3 px-3 py-3 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground font-medium transition-colors ${isCollapsed ? 'justify-center' : ''}`}
                     >
-                        <LogOut className="w-5 h-5" />
-                        Back to Site
+                        <LogOut className="w-5 h-5 flex-shrink-0" />
+                        <span className={`whitespace-nowrap transition-all duration-300 ${isCollapsed ? 'lg:w-0 lg:opacity-0 lg:hidden' : 'opacity-100'}`}>
+                            Back to Site
+                        </span>
                     </Link>
                 </div>
             </aside>
 
-            {/* Overlay */}
-            {isSidebarOpen && (
+            {/* Overlay for mobile */}
+            {isMobileMenuOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-                    onClick={() => setIsSidebarOpen(false)}
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden animate-in fade-in duration-200"
+                    onClick={() => setIsMobileMenuOpen(false)}
                 ></div>
             )}
 
             {/* Main Content */}
-            <main className="lg:ml-64 pt-16 min-h-screen">
+            <main className={`pt-16 min-h-screen transition-all duration-300 ${isCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
                 <div className="p-6">
                     {children}
                 </div>
@@ -137,3 +172,4 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </div>
     );
 }
+
