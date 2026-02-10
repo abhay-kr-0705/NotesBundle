@@ -72,7 +72,7 @@ export default function CartPage() {
     }
 
     return (
-        <div className="pt-20 md:pt-24 pb-16">
+        <div className="pt-20 md:pt-24 pb-32 md:pb-16">
             <div className="container-custom py-8">
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8">Shopping Cart</h1>
 
@@ -190,6 +190,21 @@ export default function CartPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Sticky Checkout Bar */}
+            <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-border p-4 lg:hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col">
+                        <span className="text-xs text-muted-foreground">Total</span>
+                        <span className="text-xl font-bold text-foreground">₹{total}</span>
+                    </div>
+                    <Link href="/checkout" className="btn-primary flex-1 py-3 rounded-xl font-semibold shadow-lg shadow-primary/25 text-center">
+                        Checkout
+                        <ArrowRight className="w-5 h-5 ml-2 inline-block" />
+                    </Link>
+                </div>
+            </div>
+
         </div>
     );
 }

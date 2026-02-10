@@ -174,3 +174,81 @@ export function downloadLinkEmail(
     </html>
     `;
 }
+
+export function sendVerificationEmail(
+    email: string,
+    otp: string
+): Promise<boolean> {
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Verify your email</title>
+    </head>
+    <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+            <div style="background: linear-gradient(135deg, #2563eb, #4f46e5); padding: 32px 24px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Verify Your Email</h1>
+            </div>
+            <div style="padding: 32px 24px;">
+                <p style="color: #334155; font-size: 16px; margin-bottom: 24px;">
+                    Welcome to NotesBundle! Please use the following One Time Password (OTP) to verify your email address:
+                </p>
+                <div style="background-color: #f1f5f9; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 24px;">
+                    <span style="font-size: 32px; font-weight: 700; letter-spacing: 4px; color: #1e293b;">${otp}</span>
+                </div>
+                <p style="color: #64748b; font-size: 14px; margin-bottom: 0;">
+                    This OTP is valid for 10 minutes. If you did not request this verification, please ignore this email.
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+
+    return sendEmail({
+        to: email,
+        subject: 'Verify your email - NotesBundle',
+        html,
+    });
+}
+
+export function sendPasswordResetEmail(
+    email: string,
+    otp: string
+): Promise<boolean> {
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Reset your password</title>
+    </head>
+    <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+            <div style="background: linear-gradient(135deg, #2563eb, #4f46e5); padding: 32px 24px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Reset Password</h1>
+            </div>
+            <div style="padding: 32px 24px;">
+                <p style="color: #334155; font-size: 16px; margin-bottom: 24px;">
+                    We received a request to reset your password. Use the OTP below to proceed:
+                </p>
+                <div style="background-color: #f1f5f9; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 24px;">
+                    <span style="font-size: 32px; font-weight: 700; letter-spacing: 4px; color: #1e293b;">${otp}</span>
+                </div>
+                <p style="color: #64748b; font-size: 14px; margin-bottom: 0;">
+                    This OTP is valid for 10 minutes. If you did not request a password reset, please ignore this email.
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+
+    return sendEmail({
+        to: email,
+        subject: 'Reset your password - NotesBundle',
+        html,
+    });
+}

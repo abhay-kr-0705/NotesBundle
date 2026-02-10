@@ -32,6 +32,8 @@ export default function SignUpPage() {
         interests: [] as string[],
     });
 
+    const [isSuccess, setIsSuccess] = useState(false);
+
     const toggleInterest = (slug: string) => {
         setFormData((prev) => ({
             ...prev,
@@ -80,14 +82,38 @@ export default function SignUpPage() {
                 throw new Error(data.error || 'Registration failed');
             }
 
-            // Redirect to login
-            router.push('/login?registered=true');
+            setIsSuccess(true);
         } catch (err: any) {
             setError(err.message);
         } finally {
             setIsLoading(false);
         }
     };
+
+    if (isSuccess) {
+        return (
+            <div className="min-h-screen pt-20 pb-12 flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50">
+                <div className="w-full max-w-md mx-4">
+                    <div className="card p-8 text-center animate-fade-in">
+                        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Mail className="w-10 h-10 text-green-600" />
+                        </div>
+                        <h1 className="text-3xl font-bold text-foreground mb-4">Account Created!</h1>
+                        <p className="text-muted-foreground mb-8">
+                            We've sent a verification email to <strong>{formData.email}</strong>.<br />
+                            Please check your inbox and verify your account.
+                        </p>
+                        <Link
+                            href="/login"
+                            className="btn-primary w-full py-3 shadow-lg shadow-green-500/20 bg-green-600 hover:bg-green-700 from-transparent to-transparent"
+                        >
+                            Proceed to Login
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen pt-20 pb-12 flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50">

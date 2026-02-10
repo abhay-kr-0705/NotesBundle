@@ -251,9 +251,8 @@ export default function Navbar() {
                     </div>
                 </div>
 
-                {/* Mobile Menu */}
                 {isMobileMenuOpen && (
-                    <div className="lg:hidden border-t border-border py-4 animate-slide-down">
+                    <div className="lg:hidden border-t border-border py-4 animate-slide-down max-h-[calc(100vh-4rem)] overflow-y-auto">
                         <div className="flex flex-col gap-2">
                             {CATEGORIES.map((category) => {
                                 const Icon = categoryIcons[category.slug] || BookOpen;

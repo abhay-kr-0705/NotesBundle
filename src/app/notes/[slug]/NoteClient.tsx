@@ -57,7 +57,7 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
         : 0;
 
     return (
-        <div className="pt-20 md:pt-24 pb-16">
+        <div className="pt-20 md:pt-24 pb-32 md:pb-16">
             {/* Breadcrumb */}
             <div className="bg-gradient-subtle border-b border-border">
                 <div className="container-custom py-4">

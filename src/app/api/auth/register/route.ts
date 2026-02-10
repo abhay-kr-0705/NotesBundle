@@ -1,6 +1,9 @@
+
 import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import prisma from '@/lib/prisma';
+import crypto from 'crypto';
+import { sendVerificationEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
     try {
@@ -59,6 +62,10 @@ export async function POST(request: Request) {
         // Hash password
         const hashedPassword = await hash(password, 12);
 
+        // Generate Verification OTP
+        const otp = crypto.randomInt(100000, 999999).toString();
+        const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
         // Create user
         const user = await prisma.user.create({
             data: {
@@ -67,11 +74,22 @@ export async function POST(request: Request) {
                 phone: phone || null,
                 password: hashedPassword,
                 interests: interests || [],
+                otp,
+                otpExpiry,
+                emailVerified: null, // Explicitly null until verified
             },
         });
 
+        // Try sending email, but don't fail registration if it fails (can retry later)
+        try {
+            await sendVerificationEmail(user.email, otp);
+        } catch (emailError) {
+            console.error('Failed to send verification email:', emailError);
+            // We still return success but maybe with a warning or just let them login and verify later
+        }
+
         return NextResponse.json(
-            { message: 'Account created successfully!', userId: user.id },
+            { message: 'Account created successfully! Please check your email for verification.', userId: user.id },
             { status: 201 }
         );
     } catch (error: any) {

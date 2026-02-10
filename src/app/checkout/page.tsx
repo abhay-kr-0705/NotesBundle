@@ -160,7 +160,7 @@ export default function CheckoutPage() {
     }
 
     return (
-        <div className="pt-20 md:pt-24 pb-16">
+        <div className="pt-20 md:pt-24 pb-32 md:pb-16">
             <div className="container-custom py-8 max-w-4xl mx-auto">
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8">Checkout</h1>
 
@@ -263,6 +263,24 @@ export default function CheckoutPage() {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Mobile Sticky Payment Bar */}
+            <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-border p-4 lg:hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                <button
+                    onClick={handlePayment}
+                    disabled={isProcessing}
+                    className="btn-primary w-full py-3.5 shadow-lg shadow-primary/25 flex items-center justify-center gap-2"
+                >
+                    {isProcessing ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                        <>
+                            <CreditCard className="w-5 h-5" />
+                            Pay ₹{total}
+                        </>
+                    )}
+                </button>
             </div>
         </div>
     );
