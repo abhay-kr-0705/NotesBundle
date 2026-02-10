@@ -90,25 +90,97 @@ export default function SignUpPage() {
         }
     };
 
+    const [otp, setOtp] = useState('');
+    const [isVerifying, setIsVerifying] = useState(false);
+    const [verificationError, setVerificationError] = useState('');
+
+    const handleVerify = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsVerifying(true);
+        setVerificationError('');
+
+        try {
+            const response = await fetch('/api/auth/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: formData.email, otp }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Verification failed');
+            }
+
+            // Redirect to login with verified flag
+            router.push('/login?verified=true');
+        } catch (err: any) {
+            setVerificationError(err.message);
+        } finally {
+            setIsVerifying(false);
+        }
+    };
+
     if (isSuccess) {
         return (
             <div className="min-h-screen pt-20 pb-12 flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50">
                 <div className="w-full max-w-md mx-4">
-                    <div className="card p-8 text-center animate-fade-in">
-                        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <Mail className="w-10 h-10 text-green-600" />
+                    <div className="card p-8 animate-fade-in">
+                        <div className="text-center mb-6">
+                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Mail className="w-8 h-8 text-blue-600" />
+                            </div>
+                            <h1 className="text-2xl font-bold text-foreground mb-2">Verify your email</h1>
+                            <p className="text-muted-foreground">
+                                We've sent a 6-digit code to <br /><strong>{formData.email}</strong>
+                            </p>
                         </div>
-                        <h1 className="text-3xl font-bold text-foreground mb-4">Account Created!</h1>
-                        <p className="text-muted-foreground mb-8">
-                            We've sent a verification email to <strong>{formData.email}</strong>.<br />
-                            Please check your inbox and verify your account.
-                        </p>
-                        <Link
-                            href="/login"
-                            className="btn-primary w-full py-3 shadow-lg shadow-green-500/20 bg-green-600 hover:bg-green-700 from-transparent to-transparent"
-                        >
-                            Proceed to Login
-                        </Link>
+
+                        {verificationError && (
+                            <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm mb-6">
+                                {verificationError}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleVerify} className="space-y-5">
+                            <div>
+                                <label htmlFor="otp" className="block text-sm font-medium text-foreground mb-2">
+                                    Enter Verification Code
+                                </label>
+                                <div className="relative">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                                    <input
+                                        type="text"
+                                        id="otp"
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                        placeholder="123456"
+                                        className="input !pl-12 tracking-[0.5em] font-mono text-center text-lg"
+                                        required
+                                        maxLength={6}
+                                        minLength={6}
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isVerifying || otp.length !== 6}
+                                className="btn-primary w-full py-3.5 shadow-lg shadow-blue-500/20"
+                            >
+                                {isVerifying ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Verifying...
+                                    </>
+                                ) : (
+                                    <>
+                                        Verify Email
+                                        <ArrowRight className="w-5 h-5" />
+                                    </>
+                                )}
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
