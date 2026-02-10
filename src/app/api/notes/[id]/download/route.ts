@@ -43,37 +43,47 @@ export async function GET(
             data: { downloadCount: { increment: 1 } },
         });
 
-        // Force download by setting content-disposition if possible, 
-        // or just redirect to the Cloudinary URL with attachment flag
-
-        let fileUrl = note.fileUrl;
+        const fileUrl = note.fileUrl;
 
         if (!fileUrl) {
             return NextResponse.json({ error: 'File URL not found' }, { status: 404 });
         }
 
-        // Add Cloudinary 'fl_attachment' flag to force download if it's a cloudinary URL
-        if (fileUrl.includes('cloudinary.com')) {
-            // Sanitize title for filename
-            const sanitizedTitle = note.title
-                .replace(/[^a-zA-Z0-9]/g, '_') // Replace non-alphanumeric with underscore
-                .replace(/_+/g, '_')           // Dedupe underscores
-                .slice(0, 50);                 // Limit length
+        // Proxy download: Fetch from Cloudinary and stream to client with correct headers
 
-            const fileName = `${sanitizedTitle}.pdf`;
+        // Sanitize title for filename
+        const sanitizedTitle = note.title
+            .replace(/[^a-zA-Z0-9]/g, '_') // Replace non-alphanumeric with underscore
+            .replace(/_+/g, '_')           // Dedupe underscores
+            .slice(0, 50);                 // Limit length
 
-            // Insert fl_attachment:filename before the version number or upload/
-            // Pattern: /upload/fl_attachment:filename/v...
-            // Note: Cloudinary URLs usually have /upload/v<version>/...
-            // We want /upload/fl_attachment:<name>/v<version>/...
+        const fileName = `${sanitizedTitle}.pdf`;
 
-            // Make sure we don't double add if it's already there (though unlikely for this simplified logic)
-            if (!fileUrl.includes('fl_attachment')) {
-                fileUrl = fileUrl.replace('/upload/', `/upload/fl_attachment:${fileName}/`);
+        try {
+            const response = await fetch(fileUrl);
+
+            if (!response.ok) {
+                console.error(`Failed to fetch file from ${fileUrl}: ${response.status} ${response.statusText}`);
+                return NextResponse.json({ error: 'Failed to retrieve file source' }, { status: 502 });
             }
-        }
 
-        return NextResponse.redirect(fileUrl);
+            const headers = new Headers();
+            headers.set('Content-Disposition', `attachment; filename="${fileName}"`);
+            headers.set('Content-Type', 'application/pdf');
+
+            const contentLength = response.headers.get('content-length');
+            if (contentLength) {
+                headers.set('Content-Length', contentLength);
+            }
+
+            return new NextResponse(response.body, {
+                status: 200,
+                headers,
+            });
+        } catch (fetchError) {
+            console.error('Fetch error during download proxy:', fetchError);
+            return NextResponse.json({ error: 'Failed to download file' }, { status: 500 });
+        }
 
     } catch (error) {
         console.error('Download error:', error);
