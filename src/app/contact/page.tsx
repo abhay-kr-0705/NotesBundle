@@ -12,31 +12,19 @@ export default function ContactPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                 {/* Email */}
-                <div className="card p-8 flex flex-col items-center text-center hover:border-primary/50 transition-colors">
+                <div className="card p-8 flex flex-col items-center text-center hover:border-primary/50 transition-colors md:col-span-1 md:col-start-1">
                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4 text-primary">
                         <Mail className="w-6 h-6" />
                     </div>
                     <h3 className="text-xl font-semibold mb-2">Email Us</h3>
                     <p className="text-muted-foreground mb-4">For general queries and support</p>
-                    <a href="mailto:support@notesbundle.com" className="text-primary font-medium hover:underline">
-                        support@notesbundle.com
-                    </a>
-                </div>
-
-                {/* Phone */}
-                <div className="card p-8 flex flex-col items-center text-center hover:border-primary/50 transition-colors">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4 text-primary">
-                        <Phone className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">Call Us</h3>
-                    <p className="text-muted-foreground mb-4">Mon-Fri from 9am to 6pm</p>
-                    <a href="tel:+919876543210" className="text-primary font-medium hover:underline">
-                        +91 98765 43210
+                    <a href="mailto:notesbundle@outlook.com" className="text-primary font-medium hover:underline">
+                        notesbundle@outlook.com
                     </a>
                 </div>
 
                 {/* Address */}
-                <div className="card p-8 flex flex-col items-center text-center hover:border-primary/50 transition-colors">
+                <div className="card p-8 flex flex-col items-center text-center hover:border-primary/50 transition-colors md:col-span-1 md:col-start-3">
                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4 text-primary">
                         <MapPin className="w-6 h-6" />
                     </div>
