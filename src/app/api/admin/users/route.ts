@@ -10,7 +10,7 @@ export async function GET() {
     try {
         const session = await getServerSession(authOptions);
 
-        if (!session || session.user.role !== 'ADMIN') {
+        if (!session || session?.user?.role !== 'ADMIN') {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
@@ -25,10 +25,6 @@ export async function GET() {
                 phone: true,
                 role: true,
                 createdAt: true,
-                // isActive is not in schema, assuming all user in DB are active or adding logic
-                // The prompt's sample data had isActive. 
-                // In schema we have 'emailVerified'.
-                // Let's use that or just true for now if we don't have block status.
                 emailVerified: true,
                 orders: {
                     select: {
@@ -37,9 +33,10 @@ export async function GET() {
                     },
                 },
             },
-            orderBy: {
-                createdAt: 'desc',
-            },
+            orderBy: [
+                { role: 'asc' }, // ADMIN comes before USER alphabetically
+                { createdAt: 'desc' },
+            ],
         });
 
         // Transform data to match frontend expectations
@@ -52,7 +49,7 @@ export async function GET() {
             totalOrders: user.orders.length,
             totalSpent: user.orders.reduce((sum, order) => sum + order.finalAmount, 0),
             createdAt: user.createdAt.toISOString().split('T')[0],
-            isActive: true, // Placeholder until we add blocked status to schema
+            isActive: true, // Placeholder
             isVerified: !!user.emailVerified,
         }));
 
@@ -61,6 +58,54 @@ export async function GET() {
         console.error('Error fetching users:', error);
         return NextResponse.json(
             { error: 'Failed to fetch users' },
+            { status: 500 }
+        );
+    }
+}
+
+export async function PUT(request: Request) {
+    try {
+        const session = await getServerSession(authOptions);
+
+        if (!session || session?.user?.role !== 'ADMIN') {
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 }
+            );
+        }
+
+        const data = await request.json();
+        const { userId, role } = data;
+
+        if (!userId || !role) {
+            return NextResponse.json(
+                { error: 'Missing required fields' },
+                { status: 400 }
+            );
+        }
+
+        if (role !== 'USER' && role !== 'ADMIN') {
+            return NextResponse.json(
+                { error: 'Invalid role' },
+                { status: 400 }
+            );
+        }
+
+        // Update user role
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: { role },
+        });
+
+        return NextResponse.json({
+            message: 'User role updated successfully',
+            user: updatedUser
+        });
+
+    } catch (error) {
+        console.error('Error updating user role:', error);
+        return NextResponse.json(
+            { error: 'Failed to update user role' },
             { status: 500 }
         );
     }

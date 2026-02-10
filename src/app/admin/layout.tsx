@@ -22,13 +22,15 @@ import {
     PanelLeftOpen
 } from 'lucide-react';
 
+import { AdminCategoryIcon } from '@/components/icons/AdminCategoryIcon';
+
 const sidebarLinks = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Notes', href: '/admin/notes', icon: BookOpen },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-    { name: 'Categories', href: '/admin/categories', icon: Tags },
+    { name: 'Categories', href: '/admin/categories', icon: AdminCategoryIcon },
     { name: 'Coupons', href: '/admin/coupons', icon: Tags },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];

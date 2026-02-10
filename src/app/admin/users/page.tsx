@@ -65,11 +65,31 @@ export default function AdminUsersPage() {
     };
 
     const changeRole = async (id: string, role: string) => {
-        // TODO: Implement API for changing role
-        // For now just update UI
-        setUsers(users.map(u =>
-            u.id === id ? { ...u, role } : u
-        ));
+        try {
+            const res = await fetch('/api/admin/users', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: id, role }),
+            });
+
+            if (res.ok) {
+                toast.success('User role updated successfully');
+                // Update local state to reflect change immediately
+                setUsers(users.map(u =>
+                    u.id === id ? { ...u, role } : u
+                ));
+                // Optionally refetch to ensure sort order is correct if needed, 
+                // but local update is faster. 
+                // However, sort order might need refresh if we want admins to jump to top immediately.
+                fetchUsers();
+            } else {
+                const data = await res.json();
+                toast.error(data.error || 'Failed to update role');
+            }
+        } catch (error) {
+            console.error('Error updating role:', error);
+            toast.error('Something went wrong');
+        }
     };
 
     const filteredUsers = users.filter(user =>
