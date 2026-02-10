@@ -18,7 +18,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-    metadataBase: new URL('https://notesbundle.com'),
+    metadataBase: new URL('https://notesbundle.online'),
     title: {
         default: 'NotesBundle - Premium Study Materials & Digital Notes',
         template: '%s | NotesBundle',
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     openGraph: {
         type: 'website',
         locale: 'en_IN',
-        url: 'https://notesbundle.com',
+        url: 'https://notesbundle.online',
         siteName: 'NotesBundle',
         title: 'NotesBundle - Premium Study Materials & Digital Notes',
         description: 'Get high-quality digital notes for GATE, Engineering, Competitive Exams, and more.',
