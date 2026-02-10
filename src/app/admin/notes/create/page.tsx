@@ -18,6 +18,7 @@ interface Category {
 }
 
 export default function NewNotePage() {
+    // Component for creating new notes
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
