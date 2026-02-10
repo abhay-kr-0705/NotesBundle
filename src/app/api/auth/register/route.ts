@@ -82,10 +82,27 @@ export async function POST(request: Request) {
 
         // Try sending email, but don't fail registration if it fails (can retry later)
         try {
-            await sendVerificationEmail(user.email, otp);
-        } catch (emailError) {
+            const emailSent = await sendVerificationEmail(user.email, otp);
+            if (!emailSent) {
+                // If email fails, we should probably delete the user or mark as invalid,
+                // but for now, let's just error out so they know.
+                // Optionally delete the user to allow retry:
+                await prisma.user.delete({ where: { id: user.id } });
+
+                return NextResponse.json(
+                    { error: 'Account created but failed to send verification email. Please check your email is correct.' },
+                    { status: 500 }
+                );
+            }
+        } catch (emailError: any) {
             console.error('Failed to send verification email:', emailError);
-            // We still return success but maybe with a warning or just let them login and verify later
+            // Delete user to cleanup
+            await prisma.user.delete({ where: { id: user.id } });
+
+            return NextResponse.json(
+                { error: `Failed to send verification email: ${emailError.message || 'Unknown error'}` },
+                { status: 500 }
+            );
         }
 
         return NextResponse.json(

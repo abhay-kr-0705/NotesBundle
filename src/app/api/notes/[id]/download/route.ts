@@ -54,10 +54,23 @@ export async function GET(
 
         // Add Cloudinary 'fl_attachment' flag to force download if it's a cloudinary URL
         if (fileUrl.includes('cloudinary.com')) {
-            // Insert fl_attachment before the version number or upload/
-            // Example: .../upload/v123... -> .../upload/fl_attachment/v123...
-            // OR .../upload/note.pdf -> .../upload/fl_attachment/note.pdf
-            fileUrl = fileUrl.replace('/upload/', '/upload/fl_attachment/');
+            // Sanitize title for filename
+            const sanitizedTitle = note.title
+                .replace(/[^a-zA-Z0-9]/g, '_') // Replace non-alphanumeric with underscore
+                .replace(/_+/g, '_')           // Dedupe underscores
+                .slice(0, 50);                 // Limit length
+
+            const fileName = `${sanitizedTitle}.pdf`;
+
+            // Insert fl_attachment:filename before the version number or upload/
+            // Pattern: /upload/fl_attachment:filename/v...
+            // Note: Cloudinary URLs usually have /upload/v<version>/...
+            // We want /upload/fl_attachment:<name>/v<version>/...
+
+            // Make sure we don't double add if it's already there (though unlikely for this simplified logic)
+            if (!fileUrl.includes('fl_attachment')) {
+                fileUrl = fileUrl.replace('/upload/', `/upload/fl_attachment:${fileName}/`);
+            }
         }
 
         return NextResponse.redirect(fileUrl);

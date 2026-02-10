@@ -41,7 +41,7 @@ export async function POST(request: Request) {
         // Create unique filename
         const timestamp = Date.now();
         const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '').replace('.pdf', '');
-        const publicId = `${timestamp}-${originalName}`;
+        const publicId = `${timestamp}-${originalName}.pdf`;
 
         // Upload original file to Cloudinary
         const uploadResult = await uploadToCloudinary(buffer, {

@@ -28,7 +28,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
         return true;
     } catch (error) {
         console.error('Email sending failed:', error);
-        return false;
+        throw error;
     }
 }
 
