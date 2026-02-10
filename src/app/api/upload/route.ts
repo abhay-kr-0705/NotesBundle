@@ -47,6 +47,7 @@ export async function POST(request: Request) {
         const uploadResult = await uploadToCloudinary(buffer, {
             folder: 'notesbundle/notes',
             publicId,
+            type: 'upload',
         });
 
         // Generate preview (first 5 pages)
@@ -74,7 +75,8 @@ export async function POST(request: Request) {
             const previewResult = await uploadToCloudinary(previewBuffer, {
                 folder: 'notesbundle/previews',
                 publicId: `preview-${publicId}`,
-                resourceType: 'image', // Use image type for public access to PDF
+                // resourceType: 'raw', // Default is raw/auto which is better for PDFs
+                type: 'upload', // Force public access
             });
 
             previewUrl = previewResult.secure_url;

@@ -27,18 +27,28 @@ export async function uploadToCloudinary(
         folder?: string;
         publicId?: string;
         resourceType?: 'auto' | 'image' | 'video' | 'raw';
+        type?: 'upload' | 'authenticated' | 'private';
     } = {}
 ): Promise<UploadResult> {
-    const { folder = 'notesbundle', publicId, resourceType = 'raw' } = options;
+    const { folder = 'notesbundle', publicId, resourceType = 'raw', type = 'upload' } = options;
 
     return new Promise((resolve, reject) => {
+        const uploadOptions: any = {
+            folder,
+            public_id: publicId,
+            resource_type: resourceType,
+            type,
+        };
+
+        // Only add format if it's a PDF upload specifically, or let Cloudinary detect
+        if (resourceType === 'raw' || options.resourceType === 'auto') {
+            // Don't force format for raw
+        } else {
+            // For images, we might leave it auto
+        }
+
         const uploadStream = cloudinary.uploader.upload_stream(
-            {
-                folder,
-                public_id: publicId,
-                resource_type: resourceType,
-                format: 'pdf',
-            },
+            uploadOptions,
             (error, result) => {
                 if (error) {
                     reject(error);

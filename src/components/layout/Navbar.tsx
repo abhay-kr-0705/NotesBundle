@@ -20,7 +20,7 @@ import {
     Settings,
     Heart
 } from 'lucide-react';
-import { CATEGORIES } from '@/lib/constants';
+
 
 import { useCartStore } from '@/lib/store';
 import Logo from '@/components/Logo';
@@ -34,12 +34,25 @@ export default function Navbar() {
     const [mounted, setMounted] = useState(false);
     const cartItems = useCartStore((state) => state.items);
 
+    const [categories, setCategories] = useState<any[]>([]);
+
     useEffect(() => {
         setMounted(true);
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10);
         };
         window.addEventListener('scroll', handleScroll);
+
+        // Fetch categories dynamically
+        fetch('/api/admin/categories')
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    setCategories(data);
+                }
+            })
+            .catch(err => console.error('Failed to fetch categories', err));
+
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -88,7 +101,7 @@ export default function Navbar() {
 
                             {isCategoryMenuOpen && (
                                 <div className="absolute top-full left-0 z-20 mt-2 w-72 bg-white rounded-2xl shadow-strong border border-border p-2 animate-slide-down">
-                                    {CATEGORIES.map((category) => {
+                                    {categories.filter(c => !c.parentId).map((category) => {
                                         const Icon = categoryIcons[category.slug] || BookOpen;
                                         return (
                                             <Link
@@ -102,7 +115,7 @@ export default function Navbar() {
                                                 </div>
                                                 <div>
                                                     <p className="font-medium text-foreground">{category.name}</p>
-                                                    <p className="text-xs text-muted-foreground">{category.subcategories.length} subcategories</p>
+                                                    <p className="text-xs text-muted-foreground">{category._count?.notes || 0} notes</p>
                                                 </div>
                                             </Link>
                                         );
@@ -254,7 +267,7 @@ export default function Navbar() {
                 {isMobileMenuOpen && (
                     <div className="lg:hidden border-t border-border py-4 animate-slide-down max-h-[calc(100vh-4rem)] overflow-y-auto">
                         <div className="flex flex-col gap-2">
-                            {CATEGORIES.map((category) => {
+                            {categories.filter(c => !c.parentId).map((category) => {
                                 const Icon = categoryIcons[category.slug] || BookOpen;
                                 return (
                                     <Link

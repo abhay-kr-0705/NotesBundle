@@ -30,6 +30,17 @@ import { prisma } from '@/lib/prisma';
 // ... other imports
 
 export default async function Home() {
+    // Fetch categories
+    const categories = await prisma.category.findMany({
+        where: { parentId: null }, // Fetch top-level categories
+        include: {
+            _count: {
+                select: { notes: true }
+            }
+        },
+        orderBy: { name: 'asc' },
+    });
+
     // Fetch featured notes
     const featuredNotes = await prisma.note.findMany({
         where: {
@@ -175,7 +186,7 @@ export default async function Home() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {CATEGORIES.map((category, index) => {
+                        {categories.map((category, index) => {
                             const Icon = categoryIcons[category.slug] || BookOpen;
                             return (
                                 <Link
@@ -196,7 +207,7 @@ export default async function Home() {
                                                 {category.description}
                                             </p>
                                             <div className="flex items-center text-primary font-medium text-sm">
-                                                {category.subcategories.length} subcategories
+                                                {category._count?.notes || 0} notes
                                                 <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                                             </div>
                                         </div>
