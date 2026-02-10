@@ -150,11 +150,7 @@ export default function LoginPage() {
                 </div>
 
                 {/* Demo Credentials */}
-                <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                    <p className="text-sm text-amber-800 font-medium text-center">
-                        Demo: Use email <code className="bg-amber-100 px-1 rounded">admin@notesbundle.com</code> and password <code className="bg-amber-100 px-1 rounded">admin123</code>
-                    </p>
-                </div>
+
             </div>
         </div>
     );

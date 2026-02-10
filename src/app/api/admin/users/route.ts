@@ -91,6 +91,20 @@ export async function PUT(request: Request) {
             );
         }
 
+        // SUPER ADMIN SECURITY: Prevent modifying the super admin account
+        // We must check if the target user is the super admin
+        const targetUser = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { email: true }
+        });
+
+        if (targetUser?.email === 'notesbundle@outlook.com') {
+            return NextResponse.json(
+                { error: 'Cannot modify role of Super Admin' },
+                { status: 403 }
+            );
+        }
+
         // Update user role
         const updatedUser = await prisma.user.update({
             where: { id: userId },

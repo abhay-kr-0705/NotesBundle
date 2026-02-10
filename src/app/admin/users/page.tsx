@@ -14,6 +14,7 @@ import {
     Loader2
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { useSession } from 'next-auth/react';
 
 interface UserData {
     id: string;
@@ -64,6 +65,10 @@ export default function AdminUsersPage() {
         ));
     };
 
+    const { data: session } = useSession(); // Get session to check current user ID
+
+    // ... inside component ...
+
     const changeRole = async (id: string, role: string) => {
         try {
             const res = await fetch('/api/admin/users', {
@@ -74,13 +79,17 @@ export default function AdminUsersPage() {
 
             if (res.ok) {
                 toast.success('User role updated successfully');
+
+                // If admin modified their own role, reload to enforce new permissions
+                if (session?.user && (session.user as any).id === id) {
+                    window.location.reload();
+                    return;
+                }
+
                 // Update local state to reflect change immediately
                 setUsers(users.map(u =>
                     u.id === id ? { ...u, role } : u
                 ));
-                // Optionally refetch to ensure sort order is correct if needed, 
-                // but local update is faster. 
-                // However, sort order might need refresh if we want admins to jump to top immediately.
                 fetchUsers();
             } else {
                 const data = await res.json();
