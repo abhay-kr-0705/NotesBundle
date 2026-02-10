@@ -28,6 +28,7 @@ const sidebarLinks = [
     { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+    { name: 'Categories', href: '/admin/categories', icon: Tags },
     { name: 'Coupons', href: '/admin/coupons', icon: Tags },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];

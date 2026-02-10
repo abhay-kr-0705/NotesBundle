@@ -69,30 +69,43 @@ export const metadata: Metadata = {
             'max-image-preview': 'large',
             'max-snippet': -1,
         },
-    },
-};
+        manifest: '/manifest.json',
+        themeColor: '#2563eb',
+        viewport: {
+            width: 'device-width',
+            initialScale: 1,
+            maximumScale: 1,
+        },
+        appleWebApp: {
+            title: 'NotesBundle',
+            statusBarStyle: 'default',
+            startupImage: [
+                '/icons/icon-512x512.png',
+            ],
+        },
+    };
 
-export default function RootLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    return (
-        <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
-            <head>
-                <link rel="icon" href="/favicon.ico" sizes="any" />
-                <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-                <meta name="theme-color" content="#2563eb" />
-            </head>
-            <body className="min-h-screen flex flex-col">
-                <AuthProvider>
-                    <Navbar />
-                    <main className="flex-1">
-                        {children}
-                    </main>
-                    <Footer />
-                </AuthProvider>
-            </body>
-        </html>
-    );
+    export default function RootLayout({
+        children,
+    }: {
+        children: React.ReactNode;
+    }) {
+        return (
+            <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
+                <head>
+                    <link rel="icon" href="/favicon.ico" sizes="any" />
+                    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+                    <meta name="theme-color" content="#2563eb" />
+                </head>
+                <body className="min-h-screen flex flex-col">
+                    <AuthProvider>
+                        <Navbar />
+                        <main className="flex-1">
+                            {children}
+                        </main>
+                        <Footer />
+                    </AuthProvider>
+                </body>
+            </html>
+        );
 }

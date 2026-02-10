@@ -57,6 +57,12 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
         : 0;
 
     return (
+    const handleDownload = () => {
+            // Trigger download via API
+            window.open(`/api/notes/${note.id}/download`, '_blank');
+        };
+
+    return (
         <div className="pt-20 md:pt-24 pb-32 md:pb-16">
             {/* Breadcrumb */}
             <div className="bg-gradient-subtle border-b border-border">
@@ -235,7 +241,10 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
                             {/* Actions */}
                             <div className="space-y-3 mb-6">
                                 {note.price === 0 ? (
-                                    <button className="btn-primary w-full py-4 text-base shadow-xl shadow-blue-500/20">
+                                    <button
+                                        onClick={handleDownload}
+                                        className="btn-primary w-full py-4 text-base shadow-xl shadow-blue-500/20"
+                                    >
                                         <Download className="w-5 h-5" />
                                         Download Now
                                     </button>
@@ -359,7 +368,10 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
                     </div>
                     <div className="flex items-center gap-3 flex-1 justify-end">
                         {note.price === 0 ? (
-                            <button className="btn-primary w-full py-3 rounded-xl shadow-lg shadow-blue-500/20">
+                            <button
+                                onClick={handleDownload}
+                                className="btn-primary w-full py-3 rounded-xl shadow-lg shadow-blue-500/20"
+                            >
                                 <Download className="w-5 h-5 mr-2" />
                                 Download
                             </button>
