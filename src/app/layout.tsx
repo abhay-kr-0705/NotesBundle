@@ -110,6 +110,46 @@ export default function RootLayout({
                     crossOrigin="anonymous"
                 />
                 <meta name="google-adsense-account" content="ca-pub-5736081163311751" />
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            '@context': 'https://schema.org',
+                            '@graph': [
+                                {
+                                    '@type': 'Organization',
+                                    '@id': 'https://notesbundle.online/#organization',
+                                    'name': 'NotesBundle',
+                                    'url': 'https://notesbundle.online',
+                                    'logo': {
+                                        '@type': 'ImageObject',
+                                        'url': 'https://notesbundle.online/icons/icon-512x512.png',
+                                        'width': 512,
+                                        'height': 512,
+                                    },
+                                    'sameAs': [
+                                        'https://notesbundle.online',
+                                        // Add social profiles here later
+                                    ],
+                                },
+                                {
+                                    '@type': 'WebSite',
+                                    '@id': 'https://notesbundle.online/#website',
+                                    'url': 'https://notesbundle.online',
+                                    'name': 'NotesBundle',
+                                    'publisher': {
+                                        '@id': 'https://notesbundle.online/#organization',
+                                    },
+                                    'potentialAction': {
+                                        '@type': 'SearchAction',
+                                        'target': 'https://notesbundle.online/search?q={search_term_string}',
+                                        'query-input': 'required name=search_term_string',
+                                    },
+                                },
+                            ],
+                        }),
+                    }}
+                />
             </body>
         </html>
     );
