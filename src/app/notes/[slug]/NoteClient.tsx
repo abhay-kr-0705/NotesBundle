@@ -56,11 +56,10 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
         ? Math.round(((note.price - note.discountPrice) / note.price) * 100)
         : 0;
 
-    return (
     const handleDownload = () => {
-            // Trigger download via API
-            window.open(`/api/notes/${note.id}/download`, '_blank');
-        };
+        // Trigger download via API
+        window.open(`/api/notes/${note.id}/download`, '_blank');
+    };
 
     return (
         <div className="pt-20 md:pt-24 pb-32 md:pb-16">

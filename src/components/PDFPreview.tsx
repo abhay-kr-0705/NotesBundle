@@ -27,6 +27,10 @@ export default function PDFPreview({
     discountPrice,
 }: PDFPreviewProps) {
     const [scale, setScale] = useState(1.0);
+    const [numPages, setNumPages] = useState<number>(0);
+    const [pageNumber, setPageNumber] = useState<number>(1);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
 
     const maxPreviewPage = Math.min(previewPages, numPages);
     const isLastPreviewPage = pageNumber >= maxPreviewPage;

@@ -1,0 +1,28 @@
+
+> notesbundle@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.5
+  - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+ ✓ (pwa) Compiling for server...
+ ✓ (pwa) Compiling for server...
+ ✓ (pwa) Compiling for client (static)...
+ ○ (pwa) Service worker: C:\Users\abhay\OneDrive\Desktop\NotesBundle\public\sw.js
+ ○ (pwa)   URL: /sw.js
+ ○ (pwa)   Scope: /
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/app/api/notes/[id]/download/route.ts:52:13
+Type error: 'fileUrl' is possibly 'null'.
+
+[0m [90m 50 |[39m[0m
+[0m [90m 51 |[39m         [90m// Add Cloudinary 'fl_attachment' flag to force download if it's a cloudinary URL[39m[0m
+[0m[31m[1m>[22m[39m[90m 52 |[39m         [36mif[39m (fileUrl[33m.[39mincludes([32m'cloudinary.com'[39m)) {[0m
+[0m [90m    |[39m             [31m[1m^[22m[39m[0m
+[0m [90m 53 |[39m             [90m// Insert fl_attachment before the version number or upload/[39m[0m
+[0m [90m 54 |[39m             [90m// Example: .../upload/v123... -> .../upload/fl_attachment/v123...[39m[0m
+[0m [90m 55 |[39m             [90m// OR .../upload/note.pdf -> .../upload/fl_attachment/note.pdf[39m[0m

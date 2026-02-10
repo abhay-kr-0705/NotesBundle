@@ -48,6 +48,10 @@ export async function GET(
 
         let fileUrl = note.fileUrl;
 
+        if (!fileUrl) {
+            return NextResponse.json({ error: 'File URL not found' }, { status: 404 });
+        }
+
         // Add Cloudinary 'fl_attachment' flag to force download if it's a cloudinary URL
         if (fileUrl.includes('cloudinary.com')) {
             // Insert fl_attachment before the version number or upload/
