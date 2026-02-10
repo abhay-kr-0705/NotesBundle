@@ -101,7 +101,7 @@ export default function AdminNotesPage() {
                     <h1 className="text-2xl font-bold text-foreground">Notes Management</h1>
                     <p className="text-muted-foreground">Manage all your study materials and digital notes</p>
                 </div>
-                <Link href="/admin/notes/new" className="btn-primary">
+                <Link href="/admin/notes/create" className="btn-primary">
                     <Plus className="w-5 h-5" />
                     Add New Note
                 </Link>
