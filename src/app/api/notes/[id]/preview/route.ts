@@ -17,14 +17,18 @@ export async function GET(
         });
 
         if (!note) {
+            console.error(`Preview API: Note not found for ID ${noteId}`);
             return NextResponse.json({ error: 'Note not found' }, { status: 404 });
         }
 
         const url = note.previewUrl || note.fileUrl;
 
         if (!url) {
+            console.error(`Preview API: No URL for note ${noteId}`);
             return NextResponse.json({ error: 'No preview file available' }, { status: 404 });
         }
+
+        console.log(`Preview API: Found URL for ${noteId}: ${url}`);
 
         const publicId = extractPublicIdFromUrl(url);
 
@@ -36,11 +40,12 @@ export async function GET(
         // Generate signed URL
         // We switch to 'authenticated' as 'upload' type with signature often fails for restricted folders
         const signedUrl = generateSignedUrl(publicId, 3600, 'authenticated');
+        console.log(`Preview API: Generated signed URL: ${signedUrl}`);
 
         return NextResponse.redirect(signedUrl);
 
     } catch (error) {
         console.error('Preview error:', error);
-        return NextResponse.json({ error: 'Failed to generate preview' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to generate preview', details: error.message }, { status: 500 });
     }
 }

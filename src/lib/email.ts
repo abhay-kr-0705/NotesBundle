@@ -1,13 +1,21 @@
 import nodemailer from 'nodemailer';
 
 // Email configuration
+const smtpUser = process.env.SMTP_USER;
+const smtpPass = process.env.SMTP_PASS;
+
+console.log('Email Config Check:', {
+    userPresent: !!smtpUser,
+    passPresent: !!smtpPass,
+    host: process.env.SMTP_HOST,
+    userLength: smtpUser?.length
+});
+
 const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true',
+    service: 'gmail',
     auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: smtpUser,
+        pass: smtpPass,
     },
 });
 
