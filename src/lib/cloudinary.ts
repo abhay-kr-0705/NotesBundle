@@ -91,7 +91,8 @@ export async function deleteFromCloudinary(
 export function generateSignedUrl(
     publicId: string,
     expiresIn: number = 3600,
-    type: 'authenticated' | 'upload' | 'private' = 'authenticated'
+    type: 'authenticated' | 'upload' | 'private' = 'authenticated',
+    version?: string
 ): string {
     const timestamp = Math.floor(Date.now() / 1000) + expiresIn;
 
@@ -100,6 +101,8 @@ export function generateSignedUrl(
         sign_url: true,
         type: type,
         expires_at: timestamp,
+        version: version, // Cloudinary SDK handles this
+        secure: true
     });
 }
 
@@ -109,16 +112,39 @@ export function generateSignedUrl(
  */
 export function extractPublicIdFromUrl(url: string): string | null {
     try {
-        // Regex to match typical Cloudinary patterns
-        // Matches: .../upload/v12345/folder/file.pdf
-        // or .../upload/folder/file.pdf
         const regex = /\/upload\/(?:v\d+\/)?(.+)$/;
         const match = url.match(regex);
-        return match ? match[1] : null;
+        return match ? match[1] : null; // Returns only public_id (e.g. folder/file.pdf)
     } catch (error) {
         console.error('Error extracting public ID:', error);
         return null;
     }
 }
+
+/**
+ * Extract Version and Public ID from Cloudinary URL
+ * @param url - The Cloudinary URL
+ */
+export function extractVersionAndPublicId(url: string): { version: string | undefined; publicId: string } | null {
+    try {
+        // Matches: .../upload/v(12345)/(folder/file.pdf)
+        const regexWithVersion = /\/upload\/v(\d+)\/(.+)$/;
+        const matchV = url.match(regexWithVersion);
+
+        if (matchV) {
+            return { version: matchV[1], publicId: matchV[2] };
+        }
+
+        // Fallback: no version found, just extract Public ID
+        const publicId = extractPublicIdFromUrl(url);
+        if (publicId) return { version: undefined, publicId };
+
+        return null;
+    } catch (error) {
+        console.error('Error extracting version and public ID:', error);
+        return null;
+    }
+}
+
 
 export default cloudinary;
