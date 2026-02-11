@@ -52,11 +52,13 @@ export async function POST(request: Request) {
 
         // Generate preview (first 5 pages)
         let previewUrl = uploadResult.secure_url;
+        let pageCount = 0;
+
         try {
             const pdfDoc = await PDFDocument.load(bytes);
-            const previewDoc = await PDFDocument.create();
+            pageCount = pdfDoc.getPageCount();
 
-            const pageCount = pdfDoc.getPageCount();
+            const previewDoc = await PDFDocument.create();
             const pagesToCopy = Math.min(pageCount, 5);
 
             const copiedPages = await previewDoc.copyPages(
@@ -92,6 +94,7 @@ export async function POST(request: Request) {
             fileName: file.name,
             size: file.size,
             publicId: uploadResult.public_id,
+            pageCount,
         });
     } catch (error) {
         console.error('Upload error:', error);

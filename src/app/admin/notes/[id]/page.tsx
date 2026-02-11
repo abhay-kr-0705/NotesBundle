@@ -113,6 +113,7 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
                 ...prev,
                 fileUrl: result.fileUrl,
                 previewUrl: result.previewUrl,
+                pages: result.pageCount ? result.pageCount.toString() : prev.pages,
             }));
             setFileStats({ name: file.name, size: file.size });
         } catch (error) {

@@ -396,30 +396,28 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
                 </div>
             </div>
 
-            {/* Preview Modal */}
+            {/* PDF Preview Modal */}
             {showPreview && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-card w-full max-w-4xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl relative flex flex-col">
-                        <div className="p-4 border-b border-border flex items-center justify-between bg-white dark:bg-slate-900 z-10">
-                            <h3 className="font-bold text-lg">Preview: {note.title}</h3>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4 bg-black/90 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-card w-full h-full md:max-w-5xl md:h-[90vh] md:rounded-2xl overflow-hidden shadow-2xl relative flex flex-col">
+                        <div className="p-4 border-b border-border flex items-center justify-between bg-background z-10 shrink-0">
+                            <h3 className="font-bold text-lg truncate pr-4">Preview: {note.title}</h3>
                             <button
                                 onClick={() => setShowPreview(false)}
-                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                                className="p-2 hover:bg-accent rounded-full transition-colors text-muted-foreground hover:text-foreground"
                             >
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
-                        <div className="flex-1 overflow-auto p-4 bg-slate-100 dark:bg-slate-950 flex justify-center">
-                            <div className="w-full max-w-2xl">
-                                <PDFPreview
-                                    previewUrl={note.previewUrl || note.fileUrl}
-                                    previewPages={note.previewPages || 5}
-                                    noteTitle={note.title}
-                                    noteSlug={note.slug}
-                                    price={note.price}
-                                    discountPrice={note.discountPrice}
-                                />
-                            </div>
+                        <div className="flex-1 overflow-hidden bg-zinc-950 flex flex-col">
+                            <PDFPreview
+                                previewUrl={`/api/notes/${note.id}/preview`}
+                                previewPages={note.previewPages || 5}
+                                noteTitle={note.title}
+                                noteSlug={note.slug}
+                                price={note.price}
+                                discountPrice={note.discountPrice}
+                            />
                         </div>
                     </div>
                 </div>

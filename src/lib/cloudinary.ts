@@ -86,19 +86,39 @@ export async function deleteFromCloudinary(
  * Generate a signed URL for private file access
  * @param publicId - Public ID of the file
  * @param expiresIn - Expiration time in seconds (default: 1 hour)
+ * @param type - Delivery type (default: 'authenticated')
  */
 export function generateSignedUrl(
     publicId: string,
-    expiresIn: number = 3600
+    expiresIn: number = 3600,
+    type: 'authenticated' | 'upload' | 'private' = 'authenticated'
 ): string {
     const timestamp = Math.floor(Date.now() / 1000) + expiresIn;
 
     return cloudinary.url(publicId, {
         resource_type: 'raw',
         sign_url: true,
-        type: 'authenticated',
+        type: type,
         expires_at: timestamp,
     });
+}
+
+/**
+ * Extract Public ID from Cloudinary URL
+ * @param url - The Cloudinary URL
+ */
+export function extractPublicIdFromUrl(url: string): string | null {
+    try {
+        // Regex to match typical Cloudinary patterns
+        // Matches: .../upload/v12345/folder/file.pdf
+        // or .../upload/folder/file.pdf
+        const regex = /\/upload\/(?:v\d+\/)?(.+)$/;
+        const match = url.match(regex);
+        return match ? match[1] : null;
+    } catch (error) {
+        console.error('Error extracting public ID:', error);
+        return null;
+    }
 }
 
 export default cloudinary;

@@ -92,6 +92,7 @@ export default function NewNotePage() {
                 ...prev,
                 fileUrl: result.fileUrl,
                 previewUrl: result.previewUrl,
+                pages: result.pageCount ? result.pageCount.toString() : prev.pages,
             }));
             setFileStats({ name: file.name, size: file.size });
         } catch (error) {
