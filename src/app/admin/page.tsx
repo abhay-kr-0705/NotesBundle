@@ -11,6 +11,7 @@ import {
     ArrowRight,
 } from 'lucide-react';
 import { getDashboardStats } from '@/lib/admin';
+import RefreshAnalytics from '@/components/admin/RefreshAnalytics';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,9 +63,12 @@ export default async function AdminDashboard() {
     return (
         <div>
             {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-                <p className="text-muted-foreground">Welcome back! Here&apos;s what&apos;s happening with your store.</p>
+            <div className="flex items-center justify-between mb-8">
+                <div>
+                    <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+                    <p className="text-muted-foreground">Welcome back! Here&apos;s what&apos;s happening with your store.</p>
+                </div>
+                <RefreshAnalytics />
             </div>
 
             {/* Stats Grid */}
@@ -256,7 +260,7 @@ export default async function AdminDashboard() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 

@@ -11,6 +11,13 @@ import {
 } from 'lucide-react';
 import { CATEGORIES, BRANCHES } from '@/lib/constants';
 
+interface Category {
+    id: string;
+    name: string;
+    slug: string;
+    parentId?: string | null;
+}
+
 export default function EditNotePage({ params }: { params: { id: string } }) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
@@ -19,13 +26,14 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
     const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
     const [fileStats, setFileStats] = useState<{ name: string; size: number } | null>(null);
     const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
         shortDescription: '',
         price: '',
         discountPrice: '',
-        category: '',
+        categoryId: '', // Changed from category (slug) to categoryId
         tags: '',
         examType: '',
         university: '',
@@ -42,6 +50,22 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
         isPublished: true,
     });
 
+    // Fetch categories
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await fetch('/api/admin/categories');
+                if (res.ok) {
+                    const data = await res.json();
+                    setCategories(data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch categories:', error);
+            }
+        };
+        fetchCategories();
+    }, []);
+
     useEffect(() => {
         const fetchNote = async () => {
             try {
@@ -55,7 +79,7 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
                     shortDescription: note.shortDescription || '',
                     price: note.price.toString(),
                     discountPrice: note.discountPrice ? note.discountPrice.toString() : '',
-                    category: note.category?.slug || '',
+                    categoryId: note.categoryId || '', // Use categoryId from DB
                     tags: note.tags.join(', '),
                     examType: note.examType || '',
                     university: note.university || '',
@@ -71,6 +95,15 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
                     isFeatured: note.isFeatured,
                     isPublished: note.isPublished,
                 });
+
+                // If we have a category slug but no ID (legacy support/migration), try to find ID from loaded categories?
+                // Note: The API should return categoryId now. If the note was created with the old system, it might be tricky.
+                // ideally the API response for 'note' should include the category object, so we can get keys.
+                // Assuming the GET /api/notes/:id returns the full category object relation.
+                if (note.category && note.category.id) {
+                    setFormData(prev => ({ ...prev, categoryId: note.category.id }));
+                }
+
                 // Set thumbnail preview if thumbnail exists
                 if (note.thumbnailUrl) {
                     setThumbnailPreview(note.thumbnailUrl);
@@ -84,8 +117,15 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
             }
         };
 
-        fetchNote();
-    }, [params.id, router]);
+        if (categories.length > 0) {
+            fetchNote();
+        } else {
+            // Wait for categories to load first so we can potentially map things if needed, 
+            // though strict dependency isn't 100% required if we just bind ID.
+            // But let's fetch note anyway, independent of categories helpfulness for now.
+            fetchNote();
+        }
+    }, [params.id, router, categories.length]); // Added categories.length to re-trigger if needed, or just let them run parallel.
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -452,15 +492,37 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
                         <div className="card p-6">
                             <h2 className="font-semibold text-foreground mb-4">Category</h2>
                             <select
-                                value={formData.category}
-                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                value={formData.categoryId}
+                                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
                                 className="input"
                                 required
                             >
                                 <option value="">Select Category</option>
-                                {CATEGORIES.map((cat) => (
-                                    <option key={cat.slug} value={cat.slug}>{cat.name}</option>
-                                ))}
+                                {categories
+                                    .filter(cat => !cat.parentId || cat.parentId === null)
+                                    .map(parent => {
+                                        const children = categories.filter(c => c.parentId === parent.id);
+                                        return (
+                                            <optgroup key={parent.id} label={parent.name}>
+                                                <option value={parent.id}>{parent.name} (Main)</option>
+                                                {children.map(child => (
+                                                    <option key={child.id} value={child.id}>
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;{child.name}
+                                                    </option>
+                                                ))}
+                                            </optgroup>
+                                        );
+                                    })
+                                }
+                                {/* Orphans */}
+                                {categories.some(c => c.parentId && !categories.find(p => p.id === c.parentId)) && (
+                                    <optgroup label="Others">
+                                        {categories
+                                            .filter(c => c.parentId && !categories.find(p => p.id === c.parentId))
+                                            .map(c => <option key={c.id} value={c.id}>{c.name}</option>)
+                                        }
+                                    </optgroup>
+                                )}
                             </select>
                         </div>
 

@@ -148,23 +148,24 @@ export async function getAnalyticsData() {
         }, {});
 
         // Create last 7 days array
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // Include today
+
         dailyAnalytics = Array.from({ length: 7 }, (_, i) => {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
+            const d = new Date(sevenDaysAgo);
+            d.setDate(d.getDate() + i);
             const dateStr = d.toISOString().split('T')[0];
             return {
                 id: `dynamic-${dateStr}`,
                 date: d,
                 totalViews: trafficMap[dateStr] || 0,
                 uniqueViews: 0,
-                totalSales: 0,
+                totalSales: 0, // In a real app, join with orders
                 revenue: 0,
                 createdAt: d,
                 updatedAt: d
             };
-        }).reverse(); // Most recent last? No, usually charts want chronological.
-        // Array.from generates today first (offset 0). Reverse makes it chronological (oldest to newest) if we generated it that way.
-        // Wait, the map needs to match.
+        }); // This generates chronological order from 7 days ago to today
     }
 
     return {

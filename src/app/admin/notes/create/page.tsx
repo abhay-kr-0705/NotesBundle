@@ -15,6 +15,7 @@ interface Category {
     id: string;
     name: string;
     slug: string;
+    parentId?: string | null;
 }
 
 export default function NewNotePage() {
@@ -426,9 +427,32 @@ export default function NewNotePage() {
                                 required
                             >
                                 <option value="">Select Category</option>
-                                {categories.map((cat) => (
-                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                ))}
+
+                                {categories
+                                    .filter(cat => !cat.parentId || cat.parentId === null)
+                                    .map(parent => {
+                                        const children = categories.filter(c => c.parentId === parent.id);
+                                        return (
+                                            <optgroup key={parent.id} label={parent.name}>
+                                                <option value={parent.id}>{parent.name} (Main)</option>
+                                                {children.map(child => (
+                                                    <option key={child.id} value={child.id}>
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;{child.name}
+                                                    </option>
+                                                ))}
+                                            </optgroup>
+                                        );
+                                    })
+                                }
+                                {/* Orphans */}
+                                {categories.some(c => c.parentId && !categories.find(p => p.id === c.parentId)) && (
+                                    <optgroup label="Others">
+                                        {categories
+                                            .filter(c => c.parentId && !categories.find(p => p.id === c.parentId))
+                                            .map(c => <option key={c.id} value={c.id}>{c.name}</option>)
+                                        }
+                                    </optgroup>
+                                )}
                             </select>
                         </div>
 

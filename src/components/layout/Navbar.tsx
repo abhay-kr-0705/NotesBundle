@@ -101,25 +101,49 @@ export default function Navbar() {
 
                             {isCategoryMenuOpen && (
                                 <div className="absolute top-full left-0 z-20 mt-2 w-72 bg-white rounded-2xl shadow-strong border border-border p-2 animate-slide-down">
-                                    {categories.filter(c => !c.parentId).map((category) => {
-                                        const Icon = categoryIcons[category.slug] || BookOpen;
-                                        return (
-                                            <Link
-                                                key={category.slug}
-                                                href={`/category/${category.slug}`}
-                                                onClick={() => setIsCategoryMenuOpen(false)}
-                                                className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-secondary transition-colors group"
-                                            >
-                                                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                                    <Icon className="w-5 h-5 text-primary" />
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium text-foreground">{category.name}</p>
-                                                    <p className="text-xs text-muted-foreground">{category._count?.notes || 0} notes</p>
-                                                </div>
-                                            </Link>
-                                        );
-                                    })}
+                                    <div className="max-h-[80vh] overflow-y-auto">
+                                        {categories
+                                            .filter(c => !c.parentId)
+                                            .map((category) => {
+                                                const Icon = categoryIcons[category.slug] || BookOpen;
+                                                const subcategories = categories.filter(c => c.parentId === category.id);
+
+                                                return (
+                                                    <div key={category.id} className="group">
+                                                        <Link
+                                                            href={`/category/${category.slug}`}
+                                                            onClick={() => setIsCategoryMenuOpen(false)}
+                                                            className="flex items-center gap-3 px-4 py-3 hover:bg-secondary transition-colors"
+                                                        >
+                                                            <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors shrink-0">
+                                                                <Icon className="w-4 h-4 text-primary" />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <p className="font-medium text-foreground text-sm">{category.name}</p>
+                                                                {/* <p className="text-[10px] text-muted-foreground">{category._count?.notes || 0} notes</p> */}
+                                                            </div>
+                                                        </Link>
+
+                                                        {/* Subcategories */}
+                                                        {subcategories.length > 0 && (
+                                                            <div className="bg-slate-50 border-t border-border px-4 py-2 space-y-1">
+                                                                {subcategories.map(sub => (
+                                                                    <Link
+                                                                        key={sub.id}
+                                                                        href={`/category/${sub.slug}`}
+                                                                        onClick={() => setIsCategoryMenuOpen(false)}
+                                                                        className="block py-1.5 pl-11 text-sm text-slate-600 hover:text-primary transition-colors"
+                                                                    >
+                                                                        • {sub.name}
+                                                                    </Link>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })
+                                        }
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -267,20 +291,42 @@ export default function Navbar() {
                 {isMobileMenuOpen && (
                     <div className="lg:hidden border-t border-border py-4 animate-slide-down max-h-[calc(100vh-4rem)] overflow-y-auto">
                         <div className="flex flex-col gap-2">
-                            {categories.filter(c => !c.parentId).map((category) => {
-                                const Icon = categoryIcons[category.slug] || BookOpen;
-                                return (
-                                    <Link
-                                        key={category.slug}
-                                        href={`/category/${category.slug}`}
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-secondary transition-colors"
-                                    >
-                                        <Icon className="w-5 h-5 text-primary" />
-                                        <span className="font-medium">{category.name}</span>
-                                    </Link>
-                                );
-                            })}
+                            {categories
+                                .filter(c => !c.parentId)
+                                .map((category) => {
+                                    const Icon = categoryIcons[category.slug] || BookOpen;
+                                    const subcategories = categories.filter(c => c.parentId === category.id);
+
+                                    return (
+                                        <div key={category.id} className="border-b border-border/50 last:border-0">
+                                            <Link
+                                                href={`/category/${category.slug}`}
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                className="flex items-center gap-3 px-4 py-3 hover:bg-secondary rounded-xl transition-colors"
+                                            >
+                                                <Icon className="w-5 h-5 text-primary" />
+                                                <span className="font-medium">{category.name}</span>
+                                            </Link>
+
+                                            {/* Mobile Subcategories */}
+                                            {subcategories.length > 0 && (
+                                                <div className="pl-12 pr-4 pb-2 space-y-2">
+                                                    {subcategories.map(sub => (
+                                                        <Link
+                                                            key={sub.id}
+                                                            href={`/category/${sub.slug}`}
+                                                            onClick={() => setIsMobileMenuOpen(false)}
+                                                            className="block py-1 text-sm text-slate-600 hover:text-primary transition-colors border-l-2 border-border pl-3"
+                                                        >
+                                                            {sub.name}
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })
+                            }
                             <hr className="my-2 border-border" />
                             <Link
                                 href="/notes"

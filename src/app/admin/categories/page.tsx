@@ -3,45 +3,52 @@
 import { useState, useEffect } from 'react';
 import {
     Plus,
-    Search,
-    Edit2,
+    Edit,
     Trash2,
-    Loader2,
-    FolderTree,
+    Save,
+    X,
     Folder,
+    FolderOpen,
+    Loader2,
     ChevronRight,
-    ChevronDown
+    Search
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 interface Category {
     id: string;
     name: string;
     slug: string;
-    description: string;
     parentId: string | null;
-    parent?: Category;
+    description: string | null;
+    icon: string | null;
     children?: Category[];
     _count?: {
         notes: number;
     };
+    parent?: {
+        name: string;
+    };
 }
 
 export default function CategoriesPage() {
-    const router = useRouter();
     const [categories, setCategories] = useState<Category[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [showModal, setShowModal] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Form State
     const [formData, setFormData] = useState({
         name: '',
         slug: '',
-        description: '',
         parentId: '',
+        description: '',
+        icon: ''
     });
+
+    const flatCategories = categories; // API returns flat list currently, will organize for display
 
     useEffect(() => {
         fetchCategories();
@@ -49,16 +56,48 @@ export default function CategoriesPage() {
 
     const fetchCategories = async () => {
         try {
+            setLoading(true);
             const res = await fetch('/api/admin/categories');
             if (res.ok) {
                 const data = await res.json();
                 setCategories(data);
             }
         } catch (error) {
-            console.error('Failed to fetch categories', error);
+            console.error('Failed to fetch categories:', error);
+            toast.error('Failed to load categories');
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
+    };
+
+    const handleOpenModal = (category?: Category) => {
+        if (category) {
+            setEditingCategory(category);
+            setFormData({
+                name: category.name,
+                slug: category.slug,
+                parentId: category.parentId || '',
+                description: category.description || '',
+                icon: category.icon || ''
+            });
+        } else {
+            setEditingCategory(null);
+            setFormData({
+                name: '',
+                slug: '',
+                parentId: '',
+                description: '',
+                icon: ''
+            });
+        }
+        setIsModalOpen(true);
+    };
+
+    const handleSlugify = (text: string) => {
+        return text
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)+/g, '');
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -66,273 +105,268 @@ export default function CategoriesPage() {
         setIsSubmitting(true);
 
         try {
-            const url = editingCategory
-                ? `/api/admin/categories/${editingCategory.id}`
-                : '/api/admin/categories';
-
+            const url = '/api/admin/categories';
             const method = editingCategory ? 'PUT' : 'POST';
+            const body = {
+                ...formData,
+                id: editingCategory?.id,
+                parentId: formData.parentId || null
+            };
 
             const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...formData,
-                    parentId: formData.parentId || null,
-                }),
+                body: JSON.stringify(body),
             });
 
             if (!res.ok) {
                 const error = await res.json();
-                alert(error.error || 'Failed to save category');
-                return;
+                throw new Error(error.error || 'Failed to save category');
             }
 
-            setShowModal(false);
-            setEditingCategory(null);
-            resetForm();
+            toast.success(editingCategory ? 'Category updated' : 'Category created');
+            setIsModalOpen(false);
             fetchCategories();
-        } catch (error) {
-            console.error('Error submitting form:', error);
-            alert('An error occurred');
+        } catch (error: any) {
+            toast.error(error.message);
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this category?')) return;
+    const handleDelete = async (id: string, name: string) => {
+        if (!confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) return;
 
         try {
-            const res = await fetch(`/api/admin/categories/${id}`, {
+            const res = await fetch(`/api/admin/categories?id=${id}`, {
                 method: 'DELETE',
             });
 
             if (!res.ok) {
                 const error = await res.json();
-                alert(error.error || 'Failed to delete category');
-                return;
+                throw new Error(error.error || 'Failed to delete category');
             }
 
+            toast.success('Category deleted');
             fetchCategories();
-        } catch (error) {
-            console.error('Error deleting category:', error);
-            alert('An error occurred');
+        } catch (error: any) {
+            toast.error(error.message);
         }
     };
 
-    const openEditModal = (category: Category) => {
-        setEditingCategory(category);
-        setFormData({
-            name: category.name,
-            slug: category.slug,
-            description: category.description || '',
-            parentId: category.parentId || '',
-        });
-        setShowModal(true);
-    };
-
-    const resetForm = () => {
-        setFormData({
-            name: '',
-            slug: '',
-            description: '',
-            parentId: '',
-        });
-    };
-
-    // Generate slug from name
-    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const name = e.target.value;
-        setFormData(prev => ({
-            ...prev,
-            name,
-            slug: !editingCategory ? name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : prev.slug
-        }));
-    };
-
-    const filteredCategories = categories.filter(cat =>
-        cat.name.toLowerCase().includes(searchQuery.toLowerCase())
+    // Filter and Group Categories Logic
+    const filteredCategories = categories.filter(c =>
+        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.slug.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Get potential parents (exclude self and children to avoid cycles if editing)
-    const potentialParents = categories.filter(c =>
-        !editingCategory || (c.id !== editingCategory.id && c.parentId !== editingCategory.id)
+    // Group for display: Roots then Children
+    const rootCategories = filteredCategories.filter(c => !c.parentId);
+    const childCategories = filteredCategories.filter(c => c.parentId);
+
+    const getChildrenFor = (parentId: string) => childCategories.filter(c => c.parentId === parentId);
+
+    // Simple auto-slug generator
+    useEffect(() => {
+        if (!editingCategory && formData.name) {
+            setFormData(prev => ({ ...prev, slug: handleSlugify(prev.name) }));
+        }
+    }, [formData.name, editingCategory]);
+
+    if (loading) return (
+        <div className="flex justify-center items-center h-96">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
     );
 
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">Categories</h1>
-                    <p className="text-muted-foreground">Manage product categories and subcategories</p>
+                    <p className="text-muted-foreground">Manage your store's categories and subcategories</p>
                 </div>
                 <button
-                    onClick={() => {
-                        setEditingCategory(null);
-                        resetForm();
-                        setShowModal(true);
-                    }}
+                    onClick={() => handleOpenModal()}
                     className="btn-primary flex items-center gap-2"
                 >
-                    <Plus className="w-4 h-4" />
-                    Add Category
+                    <Plus className="w-4 h-4" /> Add Category
                 </button>
             </div>
 
-            <div className="card p-4 mb-6">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <input
-                        type="text"
-                        placeholder="Search categories..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="input pl-11"
-                    />
-                </div>
+            {/* Search */}
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                    type="text"
+                    placeholder="Search categories..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="input pl-10"
+                />
             </div>
 
-            {isLoading ? (
-                <div className="flex justify-center p-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                </div>
-            ) : (
-                <div className="card overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="bg-slate-50 border-b border-border">
-                                    <th className="p-4 text-left text-sm font-medium text-muted-foreground">Name</th>
-                                    <th className="p-4 text-left text-sm font-medium text-muted-foreground">Slug</th>
-                                    <th className="p-4 text-left text-sm font-medium text-muted-foreground">Parent</th>
-                                    <th className="p-4 text-left text-sm font-medium text-muted-foreground">Notes</th>
-                                    <th className="p-4 text-left text-sm font-medium text-muted-foreground">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredCategories.map((category) => (
-                                    <tr key={category.id} className="border-b border-border last:border-0 hover:bg-slate-50">
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-2">
-                                                {category.parentId ? (
-                                                    <Folder className="w-4 h-4 text-muted-foreground ml-4" />
-                                                ) : (
-                                                    <FolderTree className="w-4 h-4 text-primary" />
-                                                )}
-                                                <span className="font-medium">{category.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="p-4 text-sm font-mono text-muted-foreground">{category.slug}</td>
-                                        <td className="p-4 text-sm">
-                                            {category.parent ? (
-                                                <span className="badge bg-slate-100 text-slate-700">
-                                                    {category.parent.name}
-                                                </span>
-                                            ) : '-'}
-                                        </td>
-                                        <td className="p-4 text-sm">{category._count?.notes || 0}</td>
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-2">
-                                                <button
-                                                    onClick={() => openEditModal(category)}
-                                                    className="p-2 hover:bg-secondary rounded-lg text-muted-foreground hover:text-primary"
-                                                >
-                                                    <Edit2 className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(category.id)}
-                                                    className="p-2 hover:bg-red-50 rounded-lg text-muted-foreground hover:text-red-600"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {filteredCategories.length === 0 && (
-                                    <tr>
-                                        <td colSpan={5} className="p-8 text-center text-muted-foreground">
-                                            No categories found
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
+            {/* Categories List (Grouped) */}
+            <div className="card divide-y divide-border">
+                {rootCategories.length === 0 ? (
+                    <div className="p-8 text-center text-muted-foreground">
+                        No categories found. Create one to get started.
                     </div>
-                </div>
-            )}
+                ) : (
+                    rootCategories.map(category => (
+                        <div key={category.id} className="group">
+                            {/* Parent Row */}
+                            <div className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+                                        <Folder className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-foreground flex items-center gap-2">
+                                            {category.name}
+                                            <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-normal">
+                                                /{category.slug}
+                                            </span>
+                                        </h3>
+                                        <p className="text-sm text-muted-foreground">
+                                            {category._count?.notes || 0} notes • {getChildrenFor(category.id).length} subcategories
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                        onClick={() => handleOpenModal(category)}
+                                        className="p-2 hover:bg-white rounded-lg border border-transparent hover:border-border text-slate-600 transition-all"
+                                        title="Edit"
+                                    >
+                                        <Edit className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(category.id, category.name)}
+                                        className="p-2 hover:bg-red-50 rounded-lg border border-transparent hover:border-red-100 text-red-600 transition-all"
+                                        title="Delete"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Children Rows */}
+                            {getChildrenFor(category.id).map(child => (
+                                <div key={child.id} className="bg-slate-50/50 pl-14 pr-4 py-3 flex items-center justify-between hover:bg-slate-100/50 transition-colors border-t border-border/50 group/child">
+                                    <div className="flex items-center gap-3">
+                                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                                        <div className="w-8 h-8 bg-white border border-border rounded-lg flex items-center justify-center text-slate-500">
+                                            <FolderOpen className="w-4 h-4" />
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-foreground text-sm flex items-center gap-2">
+                                                {child.name}
+                                                <span className="text-[10px] bg-white border border-border px-1.5 py-0.5 rounded-full text-muted-foreground">
+                                                    /{child.slug}
+                                                </span>
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {child._count?.notes || 0} notes
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 opacity-0 group-hover/child:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={() => handleOpenModal(child)}
+                                            className="p-1.5 hover:bg-white rounded border border-transparent hover:border-border text-slate-600 transition-all"
+                                        >
+                                            <Edit className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(child.id, child.name)}
+                                            className="p-1.5 hover:bg-red-50 rounded border border-transparent hover:border-red-100 text-red-600 transition-all"
+                                        >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ))
+                )}
+            </div>
 
             {/* Modal */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-md p-6 animate-in fade-in zoom-in duration-200">
-                        <h2 className="text-xl font-bold mb-4">
-                            {editingCategory ? 'Edit Category' : 'Add New Category'}
-                        </h2>
-                        <form onSubmit={handleSubmit} className="space-y-4">
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
+                        <div className="p-6 border-b border-border flex items-center justify-between">
+                            <h2 className="text-lg font-bold text-foreground">
+                                {editingCategory ? 'Edit Category' : 'New Category'}
+                            </h2>
+                            <button onClick={() => setIsModalOpen(false)} className="text-muted-foreground hover:text-foreground">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1">Name</label>
+                                <label className="block text-sm font-medium text-foreground mb-1">Name <span className="text-red-500">*</span></label>
                                 <input
                                     type="text"
+                                    className="input"
                                     value={formData.name}
-                                    onChange={handleNameChange}
-                                    className="input"
+                                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                                     required
+                                    autoFocus
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1">Slug</label>
+                                <label className="block text-sm font-medium text-foreground mb-1">Slug <span className="text-red-500">*</span></label>
                                 <input
                                     type="text"
+                                    className="input bg-slate-50 font-mono text-sm"
                                     value={formData.slug}
-                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                    className="input font-mono text-sm"
+                                    onChange={(e) => setFormData(prev => ({ ...prev, slug: handleSlugify(e.target.value) }))}
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1">Parent Category</label>
+                                <label className="block text-sm font-medium text-foreground mb-1">Parent Category</label>
                                 <select
-                                    value={formData.parentId}
-                                    onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
                                     className="input"
+                                    value={formData.parentId}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, parentId: e.target.value }))}
                                 >
                                     <option value="">None (Top Level)</option>
-                                    {potentialParents.map(c => (
-                                        <option key={c.id} value={c.id}>{c.name}</option>
-                                    ))}
+                                    {categories
+                                        .filter(c => !c.parentId && c.id !== editingCategory?.id) // Prevent self-parenting and deeper nesting for now
+                                        .map(c => (
+                                            <option key={c.id} value={c.id}>{c.name}</option>
+                                        ))
+                                    }
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1">Description</label>
+                                <label className="block text-sm font-medium text-foreground mb-1">Description</label>
                                 <textarea
+                                    className="input min-h-[80px]"
                                     value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="input min-h-[100px]"
+                                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                                    placeholder="Optional description"
                                 />
                             </div>
 
-                            <div className="flex justify-end gap-3 mt-6">
+                            <div className="flex gap-3 pt-4">
                                 <button
                                     type="button"
-                                    onClick={() => setShowModal(false)}
-                                    className="btn-secondary"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="flex-1 btn-secondary"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="btn-primary"
+                                    className="flex-1 btn-primary flex items-center justify-center gap-2"
                                 >
-                                    {isSubmitting ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                            Saving...
-                                        </>
-                                    ) : (
-                                        'Save Category'
-                                    )}
+                                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                    Save Category
                                 </button>
                             </div>
                         </form>
