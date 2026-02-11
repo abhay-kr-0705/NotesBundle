@@ -81,6 +81,9 @@ export const metadata: Metadata = {
     verification: {
         google: 'l-Kp4culgSOdGiMZXHDZdtDAqnaOD_SI-yWjvMfZlfY',
     },
+    other: {
+        'mobile-web-app-capable': 'yes',
+    },
 };
 
 export default function RootLayout({

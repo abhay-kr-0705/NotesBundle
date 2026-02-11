@@ -20,7 +20,16 @@ import {
     X,
 } from 'lucide-react';
 import { useCartStore } from '@/lib/store';
-import PDFPreview from '@/components/PDFPreview'; // Import the component
+import dynamic from 'next/dynamic';
+
+const PDFPreview = dynamic(() => import('@/components/PDFPreview'), {
+    ssr: false,
+    loading: () => (
+        <div className="flex items-center justify-center h-96 bg-zinc-900 text-zinc-400">
+            <p>Loading preview...</p>
+        </div>
+    ),
+});
 
 interface NoteClientProps {
     note: any; // Type this properly if possible, or use any for now
