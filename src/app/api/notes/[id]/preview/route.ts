@@ -34,13 +34,8 @@ export async function GET(
         }
 
         // Generate signed URL
-        // We try 'authenticated' first as that's likely the restriction
-        // If the original upload was 'upload' but folder is restricted, 
-        // access via signed URL with type 'upload' usually works if sign_url=true.
-        // However, standard restricted access usually requires type='authenticated'.
-        // Since we don't know the exact restriction type, we can default to 'upload' 
-        // but signed, as the file was uploaded with type='upload' in the code.
-        const signedUrl = generateSignedUrl(publicId, 3600, 'upload');
+        // We switch to 'authenticated' as 'upload' type with signature often fails for restricted folders
+        const signedUrl = generateSignedUrl(publicId, 3600, 'authenticated');
 
         return NextResponse.redirect(signedUrl);
 
