@@ -117,7 +117,7 @@ export function purchaseConfirmationEmail(
             <!-- Footer -->
             <div style="background-color: #f8fafc; padding: 24px; text-align: center; border-top: 1px solid #e2e8f0;">
                 <p style="color: #94a3b8; font-size: 12px; margin: 0;">
-                    Need help? Contact us at <a href="mailto:support@notesbundle.com" style="color: #2563eb;">support@notesbundle.com</a>
+                    Need help? Contact us at <a href="mailto:notesbundle@outlook.com" style="color: #2563eb;">notesbundle@outlook.com</a>
                 </p>
                 <p style="color: #cbd5e1; font-size: 11px; margin: 8px 0 0 0;">
                     © ${new Date().getFullYear()} NotesBundle. All rights reserved.

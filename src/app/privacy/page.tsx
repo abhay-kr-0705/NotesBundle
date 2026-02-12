@@ -13,7 +13,7 @@ export default function PrivacyPage() {
                 <p>
                     Welcome to NotesBundle ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy.
                     If you have any questions or concerns about this privacy notice, or our practices with regards to your personal information,
-                    please contact us at support@notesbundle.com.
+                    please contact us at notesbundle@outlook.com.
                 </p>
 
                 <h3>2. Information We Collect</h3>
@@ -43,7 +43,7 @@ export default function PrivacyPage() {
                 <p>We use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable, and no method of data transmission can be guaranteed against any interception or other type of misuse.</p>
 
                 <h3>6. Contact Us</h3>
-                <p>If you have questions or comments about this policy, you may email us at support@notesbundle.com.</p>
+                <p>If you have questions or comments about this policy, you may email us at notesbundle@outlook.com.</p>
             </div>
         </div>
     );

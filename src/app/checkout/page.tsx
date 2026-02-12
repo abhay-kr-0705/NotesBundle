@@ -31,7 +31,7 @@ export default function CheckoutPage() {
     }, []);
 
     // Calculate totals
-    const subtotal = cartItems.reduce((sum: number, item: CartItem) => sum + (item.price || 0), 0);
+    const subtotal = cartItems.reduce((sum: number, item: CartItem) => sum + (item.discountPrice ?? item.price ?? 0), 0);
 
     let discount = 0;
     if (coupon) {
@@ -182,7 +182,7 @@ export default function CheckoutPage() {
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium text-foreground line-clamp-1">{item.title}</p>
                                         </div>
-                                        <p className="font-semibold text-foreground">₹{item.price}</p>
+                                        <p className="font-semibold text-foreground">₹{item.discountPrice ?? item.price}</p>
                                     </div>
                                 ))}
                             </div>

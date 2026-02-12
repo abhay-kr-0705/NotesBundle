@@ -31,7 +31,7 @@ export default function ShippingPolicyPage() {
                 <ul>
                     <li>Check your Spam/Junk folder.</li>
                     <li>Verify that the payment was successfully deducted.</li>
-                    <li>Contact our support team at <a href="mailto:support@notesbundle.com" className="text-primary hover:underline">support@notesbundle.com</a> with your transaction details. We will manually send the files within 24 hours.</li>
+                    <li>Contact our support team at <a href="mailto:notesbundle@outlook.com" className="text-primary hover:underline">notesbundle@outlook.com</a> with your transaction details. We will manually send the files within 24 hours.</li>
                 </ul>
             </div>
         </div>

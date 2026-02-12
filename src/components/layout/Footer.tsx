@@ -17,30 +17,7 @@ export default function Footer() {
 
     return (
         <footer className="bg-slate-900 text-slate-300">
-            {/* Newsletter Section */}
-            <div className="border-b border-slate-800">
-                <div className="container-custom py-12">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div>
-                            <h3 className="text-2xl font-bold text-white mb-2">Stay Updated!</h3>
-                            <p className="text-slate-400">Get notified about new notes and exclusive offers.</p>
-                        </div>
-                        <form className="relative flex w-full md:w-auto">
-                            <input
-                                type="email"
-                                placeholder="Enter your email"
-                                className="w-full md:w-80 pl-5 pr-32 py-3.5 bg-slate-800/50 border border-slate-700 rounded-full text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all backdrop-blur-sm"
-                            />
-                            <button
-                                type="submit"
-                                className="absolute right-1.5 top-1.5 bottom-1.5 bg-primary hover:bg-primary/90 text-white px-6 rounded-full font-medium transition-colors flex items-center gap-2 shadow-lg shadow-primary/20"
-                            >
-                                Subscribe
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+
 
             {/* Main Footer */}
             <div className="container-custom py-16">
@@ -130,7 +107,7 @@ export default function Footer() {
                         <ul className="space-y-4">
                             <li className="flex items-start gap-3">
                                 <Mail className="w-5 h-5 text-primary mt-0.5" />
-                                <span>support@notesbundle.com</span>
+                                <span>notesbundle@outlook.com</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <Phone className="w-5 h-5 text-primary mt-0.5" />

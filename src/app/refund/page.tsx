@@ -27,7 +27,7 @@ export default function RefundPage() {
 
                 <h3>3. How to Request a Refund</h3>
                 <p>
-                    To request a refund under the above exceptions, please contact us at <a href="mailto:support@notesbundle.com" className="text-primary hover:underline">support@notesbundle.com</a> within 7 days of purchase.
+                    To request a refund under the above exceptions, please contact us at <a href="mailto:notesbundle@outlook.com" className="text-primary hover:underline">notesbundle@outlook.com</a> within 7 days of purchase.
                     Please include:
                 </p>
                 <ul>

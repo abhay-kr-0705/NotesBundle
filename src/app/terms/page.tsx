@@ -58,7 +58,7 @@ export default function TermsPage() {
                     <br />
                     <strong>NotesBundle</strong>
                     <br />
-                    support@notesbundle.com
+                    notesbundle@outlook.com
                 </p>
             </div>
         </div>

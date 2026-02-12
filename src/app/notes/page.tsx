@@ -7,7 +7,8 @@ import {
     BookOpen,
     ChevronRight,
 } from 'lucide-react';
-import NotesFilter from '@/components/NotesFilter'; // Import Client Component
+import NotesFilter from '@/components/NotesFilter';
+import NotesToolbar from '@/components/NotesToolbar';
 
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
@@ -31,6 +32,7 @@ export default async function NotesPage({
     const priceRange = typeof searchParams.price === 'string' ? searchParams.price : undefined;
     const minRating = typeof searchParams.rating === 'string' ? parseInt(searchParams.rating) : undefined;
     const sort = typeof searchParams.sort === 'string' ? searchParams.sort : undefined;
+    const view = typeof searchParams.view === 'string' ? searchParams.view : 'grid';
     const page = typeof searchParams.page === 'string' ? parseInt(searchParams.page) : 1;
     const limit = 12;
 
@@ -146,31 +148,13 @@ export default async function NotesPage({
                     {/* Notes Grid */}
                     <div className="flex-1">
                         {/* Toolbar */}
-                        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-                            <p className="text-muted-foreground">
-                                Showing <span className="font-semibold text-foreground">{totalNotes}</span> notes
-                            </p>
-                            <div className="flex items-center gap-4">
-                                <select className="input py-2 px-4 w-auto text-sm">
-                                    <option>Sort by: Popularity</option>
-                                    <option>Price: Low to High</option>
-                                    <option>Price: High to Low</option>
-                                    <option>Rating</option>
-                                    <option>Newest</option>
-                                </select>
-                                <div className="flex items-center gap-1 border border-border rounded-lg p-1">
-                                    <button className="p-2 rounded-md bg-primary text-white">
-                                        <Grid3X3 className="w-4 h-4" />
-                                    </button>
-                                    <button className="p-2 rounded-md text-muted-foreground hover:bg-secondary">
-                                        <List className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        <NotesToolbar totalNotes={totalNotes} currentSort={sort} currentView={view} />
 
-                        {/* Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {/* Grid / List */}
+                        <div className={view === 'list'
+                            ? 'flex flex-col gap-4'
+                            : 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6'
+                        }>
                             {notes.length === 0 ? (
                                 <div className="col-span-full text-center py-12">
                                     <h3 className="text-lg font-medium text-foreground">No notes found</h3>
@@ -181,9 +165,15 @@ export default async function NotesPage({
                                     <Link
                                         key={note.id}
                                         href={`/notes/${note.slug}`}
-                                        className="card-hover overflow-hidden group block h-full bg-card rounded-2xl border border-border"
+                                        className={view === 'list'
+                                            ? 'card-hover overflow-hidden group flex bg-card rounded-2xl border border-border h-auto'
+                                            : 'card-hover overflow-hidden group block h-full bg-card rounded-2xl border border-border'
+                                        }
                                     >
-                                        <div className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200 relative overflow-hidden">
+                                        <div className={view === 'list'
+                                            ? 'w-32 sm:w-44 shrink-0 bg-gradient-to-br from-slate-100 to-slate-200 relative overflow-hidden'
+                                            : 'aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200 relative overflow-hidden'
+                                        }>
                                             {note.thumbnailUrl ? (
                                                 <img
                                                     src={note.thumbnailUrl}
@@ -192,7 +182,7 @@ export default async function NotesPage({
                                                 />
                                             ) : (
                                                 <div className="absolute inset-0 flex items-center justify-center">
-                                                    <BookOpen className="w-16 h-16 text-slate-300" />
+                                                    <BookOpen className={view === 'list' ? 'w-10 h-10 text-slate-300' : 'w-16 h-16 text-slate-300'} />
                                                 </div>
                                             )}
                                             {note.price === 0 && (
@@ -204,15 +194,17 @@ export default async function NotesPage({
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="p-5">
-                                            <span className="badge-primary text-xs mb-3">{note.category?.name || 'Uncategorized'}</span>
-                                            <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2 min-h-[3rem]">
+                                        <div className={view === 'list' ? 'p-4 flex-1 flex flex-col justify-center min-w-0' : 'p-5'}>
+                                            <span className="badge-primary text-xs mb-2 inline-block">{note.category?.name || 'Uncategorized'}</span>
+                                            <h3 className={`font-semibold text-foreground group-hover:text-primary transition-colors ${view === 'list' ? 'line-clamp-1 mb-1' : 'line-clamp-2 mb-2 min-h-[3rem]'}`}>
                                                 {note.title}
                                             </h3>
-                                            <p className="text-sm text-muted-foreground mb-3 line-clamp-2 min-h-[2.5rem]">
-                                                {note.description}
-                                            </p>
-                                            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                                            {view !== 'list' && (
+                                                <p className="text-sm text-muted-foreground mb-3 line-clamp-2 min-h-[2.5rem]">
+                                                    {note.description}
+                                                </p>
+                                            )}
+                                            <div className={`flex items-center gap-4 text-sm text-muted-foreground ${view === 'list' ? 'mb-1' : 'mb-3'}`}>
                                                 <span>{note.pages || 0} pages</span>
                                                 <span>•</span>
                                                 <span>{note.downloadCount.toLocaleString()} downloads</span>
@@ -230,11 +222,11 @@ export default async function NotesPage({
                                                         <span className="text-lg font-bold text-accent">Free</span>
                                                     ) : (
                                                         <>
-                                                            <span className="text-lg font-bold text-foreground">
+                                                            <span className="text-base sm:text-lg font-bold text-foreground">
                                                                 ₹{note.discountPrice || note.price}
                                                             </span>
                                                             {note.discountPrice !== null && note.discountPrice < note.price && (
-                                                                <span className="text-sm text-muted-foreground line-through">₹{note.price}</span>
+                                                                <span className="text-xs sm:text-sm text-muted-foreground line-through">₹{note.price}</span>
                                                             )}
                                                         </>
                                                     )}
@@ -247,15 +239,38 @@ export default async function NotesPage({
                         </div>
 
                         {/* Pagination */}
-                        <div className="flex items-center justify-center gap-2 mt-10">
-                            <button className="btn-ghost px-4 py-2" disabled>Previous</button>
-                            <button className="w-10 h-10 rounded-lg bg-primary text-white font-semibold">1</button>
-                            <button className="w-10 h-10 rounded-lg hover:bg-secondary text-muted-foreground font-semibold">2</button>
-                            <button className="w-10 h-10 rounded-lg hover:bg-secondary text-muted-foreground font-semibold">3</button>
-                            <span className="px-2 text-muted-foreground">...</span>
-                            <button className="w-10 h-10 rounded-lg hover:bg-secondary text-muted-foreground font-semibold">10</button>
-                            <button className="btn-ghost px-4 py-2">Next</button>
-                        </div>
+                        {totalNotes > limit && (
+                            <div className="flex items-center justify-center gap-2 mt-10">
+                                {page > 1 && (
+                                    <Link
+                                        href={`/notes?${new URLSearchParams({ ...Object.fromEntries(Object.entries(searchParams).filter(([_, v]) => v !== undefined).map(([k, v]) => [k, String(v)])), page: String(page - 1) }).toString()}`}
+                                        className="btn-ghost px-4 py-2"
+                                    >
+                                        Previous
+                                    </Link>
+                                )}
+                                {Array.from({ length: Math.min(Math.ceil(totalNotes / limit), 5) }, (_, i) => i + 1).map((p) => (
+                                    <Link
+                                        key={p}
+                                        href={`/notes?${new URLSearchParams({ ...Object.fromEntries(Object.entries(searchParams).filter(([_, v]) => v !== undefined).map(([k, v]) => [k, String(v)])), page: String(p) }).toString()}`}
+                                        className={`w-10 h-10 rounded-lg flex items-center justify-center font-semibold ${p === page
+                                                ? 'bg-primary text-white'
+                                                : 'hover:bg-secondary text-muted-foreground'
+                                            }`}
+                                    >
+                                        {p}
+                                    </Link>
+                                ))}
+                                {page < Math.ceil(totalNotes / limit) && (
+                                    <Link
+                                        href={`/notes?${new URLSearchParams({ ...Object.fromEntries(Object.entries(searchParams).filter(([_, v]) => v !== undefined).map(([k, v]) => [k, String(v)])), page: String(page + 1) }).toString()}`}
+                                        className="btn-ghost px-4 py-2"
+                                    >
+                                        Next
+                                    </Link>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

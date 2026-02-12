@@ -51,6 +51,7 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
             title: note.title,
             slug: note.slug,
             price: note.price,
+            discountPrice: note.discountPrice,
             thumbnailUrl: note.thumbnailUrl,
             category: note.category?.name,
         });

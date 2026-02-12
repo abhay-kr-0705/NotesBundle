@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 const DEFAULT_SETTINGS: { [key: string]: string } = {
     siteName: 'NotesBundle',
-    supportEmail: 'support@notesbundle.com',
+    supportEmail: 'notesbundle@outlook.com',
     maintenanceMode: 'false',
     allowSignups: 'true',
 };

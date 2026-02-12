@@ -10,7 +10,7 @@ export default function AdminSettingsPage() {
 
     const [settings, setSettings] = useState({
         siteName: 'NotesBundle',
-        supportEmail: 'support@notesbundle.com',
+        supportEmail: 'notesbundle@outlook.com',
         maintenanceMode: false,
         allowSignups: true,
     });

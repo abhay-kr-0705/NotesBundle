@@ -122,7 +122,7 @@ export default function AdminNotesPage() {
                     <p className="text-muted-foreground mt-1">{totalNotes} total notes</p>
                 </div>
                 <Link
-                    href="/admin/notes/new"
+                    href="/admin/notes/create"
                     className="btn-primary rounded-xl px-5 py-2.5 flex items-center gap-2"
                 >
                     <Plus className="w-5 h-5" />

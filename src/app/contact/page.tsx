@@ -18,8 +18,8 @@ export default function ContactPage() {
                     </div>
                     <h3 className="text-xl font-semibold mb-2">Email Us</h3>
                     <p className="text-muted-foreground mb-4">For general queries and support</p>
-                    <a href="mailto:support@notesbundle.com" className="text-primary font-medium hover:underline">
-                        support@notesbundle.com
+                    <a href="mailto:notesbundle@outlook.com" className="text-primary font-medium hover:underline">
+                        notesbundle@outlook.com
                     </a>
                 </div>
 

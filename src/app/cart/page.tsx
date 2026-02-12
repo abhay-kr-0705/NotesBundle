@@ -40,7 +40,7 @@ export default function CartPage() {
     };
 
     const subtotal = cartItems.reduce((sum, item) =>
-        sum + (item.price), 0 // Assuming price on cart item is final price
+        sum + (item.discountPrice ?? item.price), 0
     );
     const discount = appliedCoupon ? appliedCoupon.discount : 0;
     const total = Math.max(subtotal - discount, 0);
@@ -109,8 +109,11 @@ export default function CartPage() {
                                         </div>
                                         <div className="flex items-center gap-3 mt-3">
                                             <span className="text-lg font-bold text-foreground">
-                                                ₹{item.price}
+                                                ₹{item.discountPrice ?? item.price}
                                             </span>
+                                            {item.discountPrice != null && item.discountPrice < item.price && (
+                                                <span className="text-sm text-muted-foreground line-through">₹{item.price}</span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
