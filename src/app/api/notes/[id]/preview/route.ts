@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { generateSignedUrl, extractVersionAndPublicId } from '@/lib/cloudinary';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,46 +25,39 @@ export async function GET(
         }
 
         // For free notes, use the full file URL; for paid notes, use the preview URL
-        // Prioritize previewUrl for paid notes if available
-        let rawUrl = note.price === 0
+        const url = note.price === 0
             ? (note.fileUrl || note.previewUrl)
             : (note.previewUrl || note.fileUrl);
 
-        if (!rawUrl) {
+        if (!url) {
             return NextResponse.json({ error: 'No preview file available' }, { status: 404 });
         }
 
-        console.log(`Preview API: Processing URL for note ${noteId}: ${rawUrl}`);
+        // Proxy the PDF content through the API to avoid CORS/auth issues
+        const pdfResponse = await fetch(url, {
+            headers: {
+                'Accept': 'application/pdf',
+            },
+        });
 
-        // Check if it's a Cloudinary URL
-        if (rawUrl.includes('cloudinary.com')) {
-            const extracted = extractVersionAndPublicId(rawUrl);
-
-            if (extracted) {
-                const { version, publicId } = extracted;
-                console.log(`Preview API: Extracted publicId: ${publicId} (version: ${version})`);
-
-                // Determine type based on URL structure
-                // If URL contains '/authenticated/', use 'authenticated'
-                // If URL contains '/private/', use 'private'
-                // Otherwise default to 'upload' but still sign it (Cloudinary "strict" mode handling)
-                let type: 'authenticated' | 'upload' | 'private' = 'upload';
-                if (rawUrl.includes('/authenticated/')) type = 'authenticated';
-                else if (rawUrl.includes('/private/')) type = 'private';
-
-                // Generate signed URL
-                // We'll trust the helper to use the correct resource_type='raw' for PDFs usually
-                const signedUrl = generateSignedUrl(publicId, 3600, type, version);
-
-                console.log(`Preview API: Redirecting to signed URL for ${publicId}`);
-                return NextResponse.redirect(signedUrl);
-            } else {
-                console.warn('Preview API: Failed to extract Cloudinary info, fallback to raw redirect');
-            }
+        if (!pdfResponse.ok) {
+            console.error(`Preview API: Failed to fetch PDF from ${url}, status: ${pdfResponse.status}`);
+            return NextResponse.json(
+                { error: 'Failed to fetch preview PDF' },
+                { status: 502 }
+            );
         }
 
-        // Fallback or non-Cloudinary URL
-        return NextResponse.redirect(rawUrl);
+        const pdfBuffer = await pdfResponse.arrayBuffer();
+
+        return new NextResponse(pdfBuffer, {
+            status: 200,
+            headers: {
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': 'inline',
+                'Cache-Control': 'public, max-age=3600',
+            },
+        });
 
     } catch (error: any) {
         console.error('Preview error:', error);
@@ -75,4 +67,3 @@ export async function GET(
         );
     }
 }
-

@@ -94,6 +94,7 @@ model Note {
   discountPrice   Float?
   fileUrl         String?     // PDF or file URL
   previewUrl      String?     // Preview PDF URL (limited pages)
+  previewImages   String[]    // Array of image URLs for manual preview pages
   previewPages    Int         @default(5) // Number of pages available for preview
   thumbnailUrl    String?
   categoryId      String

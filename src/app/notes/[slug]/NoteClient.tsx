@@ -411,14 +411,37 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
                             </button>
                         </div>
                         <div className="flex-1 overflow-hidden bg-zinc-950 flex flex-col">
-                            <PDFPreview
-                                previewUrl={`/api/notes/${note.id}/preview`}
-                                previewPages={note.previewPages || 5}
-                                noteTitle={note.title}
-                                noteSlug={note.slug}
-                                price={note.price}
-                                discountPrice={note.discountPrice}
-                            />
+                            {note.price > 0 && note.previewImages && note.previewImages.length > 0 ? (
+                                <div className="flex-1 overflow-y-auto p-4 bg-zinc-900">
+                                    <div className="max-w-3xl mx-auto space-y-4">
+                                        {note.previewImages.map((img: string, idx: number) => (
+                                            <div key={idx} className="relative bg-white rounded-lg overflow-hidden shadow-lg">
+                                                <img
+                                                    src={img}
+                                                    alt={`Preview page ${idx + 1}`}
+                                                    className="w-full h-auto"
+                                                    loading="lazy"
+                                                />
+                                                <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                                                    Page {idx + 1}
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <div className="text-center text-zinc-400 py-8">
+                                            <p>End of preview. Purchase to read the full document.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <PDFPreview
+                                    previewUrl={`/api/notes/${note.id}/preview`}
+                                    previewPages={note.previewPages || 5}
+                                    noteTitle={note.title}
+                                    noteSlug={note.slug}
+                                    price={note.price}
+                                    discountPrice={note.discountPrice}
+                                />
+                            )}
                         </div>
                     </div>
                 </div>

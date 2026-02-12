@@ -10,6 +10,7 @@ import {
     Loader2
 } from 'lucide-react';
 import { BRANCHES } from '@/lib/constants';
+import MultiImageUpload from '@/components/admin/MultiImageUpload';
 
 interface Category {
     id: string;
@@ -62,6 +63,7 @@ export default function NewNotePage() {
         previewPages: '5',
         fileUrl: '',
         previewUrl: '',
+        previewImages: [] as string[],
         thumbnailUrl: '',
         isFeatured: false,
         isPublished: true,
@@ -507,6 +509,15 @@ export default function NewNotePage() {
                                     max="20"
                                 />
                                 <p className="text-xs text-muted-foreground mt-1">Number of pages visible in preview</p>
+                            </div>
+
+                            <div className="pt-4 border-t border-border mt-4">
+                                <MultiImageUpload
+                                    images={formData.previewImages}
+                                    onImagesChange={(newImages) => setFormData({ ...formData, previewImages: newImages })}
+                                    label="Manual Preview Pages (Images)"
+                                    description="Upload images of pages to show as preview. If added, these will be shown instead of the PDF preview for paid notes."
+                                />
                             </div>
                         </div>
                     </div>
