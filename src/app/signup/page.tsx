@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -13,9 +13,31 @@ import {
     Loader2,
     User,
     Phone,
-    Check
+    Check,
+    GraduationCap,
+    Trophy,
+    Code,
+    FileText,
+    Book,
+    Sparkles
 } from 'lucide-react';
-import { CATEGORIES } from '@/lib/constants';
+
+const categoryIconMap: { [key: string]: any } = {
+    'gate': GraduationCap,
+    'engineering': BookOpen,
+    'competitive': Trophy,
+    'coding': Code,
+    'pyqs': FileText,
+    'handbooks': Book,
+};
+
+interface DynamicCategory {
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    icon: string | null;
+}
 
 export default function SignUpPage() {
     const router = useRouter();
@@ -23,6 +45,8 @@ export default function SignUpPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [dynamicCategories, setDynamicCategories] = useState<DynamicCategory[]>([]);
+    const [categoriesLoading, setCategoriesLoading] = useState(true);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -31,6 +55,25 @@ export default function SignUpPage() {
         confirmPassword: '',
         interests: [] as string[],
     });
+
+    // Fetch categories from API
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await fetch('/api/admin/categories');
+                if (res.ok) {
+                    const data = await res.json();
+                    // Only show top-level categories (no parentId)
+                    setDynamicCategories(data.filter((c: any) => !c.parentId));
+                }
+            } catch (error) {
+                console.error('Failed to fetch categories:', error);
+            } finally {
+                setCategoriesLoading(false);
+            }
+        };
+        fetchCategories();
+    }, []);
 
     const [isSuccess, setIsSuccess] = useState(false);
 
@@ -368,22 +411,49 @@ export default function SignUpPage() {
                                     <p className="text-sm text-muted-foreground mb-4">
                                         Select the categories you&apos;re interested in (at least 1):
                                     </p>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        {CATEGORIES.map((category) => (
-                                            <button
-                                                key={category.slug}
-                                                type="button"
-                                                onClick={() => toggleInterest(category.slug)}
-                                                className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${formData.interests.includes(category.slug)
-                                                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm'
-                                                    : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
-                                                    }`}
-                                            >
-                                                <span className="text-2xl mb-2 block transform transition-transform group-hover:scale-110">{category.icon}</span>
-                                                <span className="font-medium">{category.name}</span>
-                                            </button>
-                                        ))}
-                                    </div>
+                                    {categoriesLoading ? (
+                                        <div className="flex items-center justify-center py-12">
+                                            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                                            <span className="ml-2 text-muted-foreground text-sm">Loading categories...</span>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {dynamicCategories.map((category) => {
+                                                const IconComponent = categoryIconMap[category.slug] || Sparkles;
+                                                const isSelected = formData.interests.includes(category.slug);
+                                                return (
+                                                    <button
+                                                        key={category.id}
+                                                        type="button"
+                                                        onClick={() => toggleInterest(category.slug)}
+                                                        className={`p-4 rounded-xl border-2 text-left transition-all duration-200 relative overflow-hidden ${isSelected
+                                                                ? 'border-indigo-600 bg-indigo-50 shadow-sm'
+                                                                : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+                                                            }`}
+                                                    >
+                                                        {isSelected && (
+                                                            <div className="absolute top-2 right-2 w-5 h-5 bg-indigo-600 rounded-full flex items-center justify-center">
+                                                                <Check className="w-3 h-3 text-white" />
+                                                            </div>
+                                                        )}
+                                                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${isSelected ? 'bg-indigo-600 text-white' : 'bg-primary/10 text-primary'
+                                                            }`}>
+                                                            <IconComponent className="w-5 h-5" />
+                                                        </div>
+                                                        <span className={`font-medium text-sm block ${isSelected ? 'text-indigo-700' : 'text-foreground'
+                                                            }`}>
+                                                            {category.name}
+                                                        </span>
+                                                        {category.description && (
+                                                            <span className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5 block">
+                                                                {category.description}
+                                                            </span>
+                                                        )}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="flex gap-3">

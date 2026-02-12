@@ -10,6 +10,7 @@ import {
     ShoppingCart,
     User,
     ChevronDown,
+    ChevronRight,
     BookOpen,
     GraduationCap,
     Trophy,
@@ -82,67 +83,69 @@ export default function Navbar() {
                     {/* Desktop Navigation */}
                     <div className="hidden lg:flex items-center gap-8">
                         {/* Categories Dropdown */}
-                        <div className="relative">
-                            {/* Category Menu Backdrop */}
-                            {isCategoryMenuOpen && (
-                                <div
-                                    className="fixed inset-0 z-10 cursor-default"
-                                    onClick={() => setIsCategoryMenuOpen(false)}
-                                />
-                            )}
-
-                            <button
-                                onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
-                                className="relative z-20 flex items-center gap-1 text-muted-foreground hover:text-foreground font-medium transition-colors"
+                        <div
+                            className="relative"
+                            onMouseEnter={() => setIsCategoryMenuOpen(true)}
+                            onMouseLeave={() => setIsCategoryMenuOpen(false)}
+                        >
+                            <Link
+                                href="/notes"
+                                className="relative z-20 flex items-center gap-1 text-muted-foreground hover:text-foreground font-medium transition-colors py-2"
                             >
                                 Categories
                                 <ChevronDown className={`w-4 h-4 transition-transform ${isCategoryMenuOpen ? 'rotate-180' : ''}`} />
-                            </button>
+                            </Link>
 
                             {isCategoryMenuOpen && (
-                                <div className="absolute top-full left-0 z-20 mt-2 w-72 bg-white rounded-2xl shadow-strong border border-border p-2 animate-slide-down">
-                                    <div className="max-h-[80vh] overflow-y-auto">
-                                        {categories
-                                            .filter(c => !c.parentId)
-                                            .map((category) => {
-                                                const Icon = categoryIcons[category.slug] || BookOpen;
-                                                const subcategories = categories.filter(c => c.parentId === category.id);
+                                <div className="absolute top-full left-0 z-20 pt-1 w-72 animate-slide-down">
+                                    <div className="bg-white rounded-2xl shadow-strong border border-border p-2">
+                                        <div className="max-h-[80vh] overflow-y-auto">
+                                            {categories
+                                                .filter(c => !c.parentId)
+                                                .map((category) => {
+                                                    const Icon = categoryIcons[category.slug] || BookOpen;
+                                                    const subcategories = categories.filter(c => c.parentId === category.id);
 
-                                                return (
-                                                    <div key={category.id} className="group">
-                                                        <Link
-                                                            href={`/category/${category.slug}`}
-                                                            onClick={() => setIsCategoryMenuOpen(false)}
-                                                            className="flex items-center gap-3 px-4 py-3 hover:bg-secondary transition-colors"
-                                                        >
-                                                            <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors shrink-0">
-                                                                <Icon className="w-4 h-4 text-primary" />
-                                                            </div>
-                                                            <div className="flex-1">
-                                                                <p className="font-medium text-foreground text-sm">{category.name}</p>
-                                                                {/* <p className="text-[10px] text-muted-foreground">{category._count?.notes || 0} notes</p> */}
-                                                            </div>
-                                                        </Link>
+                                                    return (
+                                                        <div key={category.id} className="relative group/cat">
+                                                            <Link
+                                                                href={`/category/${category.slug}`}
+                                                                onClick={() => setIsCategoryMenuOpen(false)}
+                                                                className="flex items-center gap-3 px-4 py-3 hover:bg-secondary rounded-xl transition-colors"
+                                                            >
+                                                                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover/cat:bg-primary/20 transition-colors shrink-0">
+                                                                    <Icon className="w-4 h-4 text-primary" />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <p className="font-medium text-foreground text-sm">{category.name}</p>
+                                                                </div>
+                                                                {subcategories.length > 0 && (
+                                                                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                                                                )}
+                                                            </Link>
 
-                                                        {/* Subcategories */}
-                                                        {subcategories.length > 0 && (
-                                                            <div className="bg-slate-50 border-t border-border px-4 py-2 space-y-1">
-                                                                {subcategories.map(sub => (
-                                                                    <Link
-                                                                        key={sub.id}
-                                                                        href={`/category/${sub.slug}`}
-                                                                        onClick={() => setIsCategoryMenuOpen(false)}
-                                                                        className="block py-1.5 pl-11 text-sm text-slate-600 hover:text-primary transition-colors"
-                                                                    >
-                                                                        • {sub.name}
-                                                                    </Link>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })
-                                        }
+                                                            {/* Subcategories hover flyout */}
+                                                            {subcategories.length > 0 && (
+                                                                <div className="hidden group-hover/cat:block absolute left-full top-0 pl-2 z-30">
+                                                                    <div className="bg-white rounded-2xl shadow-strong border border-border p-2 w-56">
+                                                                        {subcategories.map(sub => (
+                                                                            <Link
+                                                                                key={sub.id}
+                                                                                href={`/category/${sub.slug}`}
+                                                                                onClick={() => setIsCategoryMenuOpen(false)}
+                                                                                className="block px-4 py-2.5 text-sm text-slate-600 hover:text-primary hover:bg-secondary rounded-lg transition-colors"
+                                                                            >
+                                                                                {sub.name}
+                                                                            </Link>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })
+                                            }
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -151,7 +154,7 @@ export default function Navbar() {
                         <Link href="/notes" className="text-muted-foreground hover:text-foreground font-medium transition-colors">
                             All Notes
                         </Link>
-                        <Link href="/free" className="text-muted-foreground hover:text-foreground font-medium transition-colors">
+                        <Link href="/free-resources" className="text-muted-foreground hover:text-foreground font-medium transition-colors">
                             Free Resources
                         </Link>
                         <Link href="/about" className="text-muted-foreground hover:text-foreground font-medium transition-colors">
@@ -336,7 +339,7 @@ export default function Navbar() {
                                 All Notes
                             </Link>
                             <Link
-                                href="/free"
+                                href="/free-resources"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className="px-4 py-3 font-medium hover:bg-secondary rounded-xl transition-colors"
                             >

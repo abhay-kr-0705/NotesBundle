@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import {
     Star,
     BookOpen,
@@ -98,23 +99,14 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
                             ) : (
                                 <BookOpen className="w-24 h-24 text-slate-300" />
                             )}
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            {/* Single preview button: always visible on mobile, hover on desktop */}
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300">
                                 <button
                                     onClick={() => setShowPreview(true)}
                                     className="btn bg-white text-foreground hover:scale-105 transition-transform duration-200 shadow-xl rounded-full px-6 py-3 font-medium"
                                 >
                                     <Eye className="w-5 h-5 text-primary" />
                                     Preview ({note.previewPages || 5} pages)
-                                </button>
-                            </div>
-                            {/* Mobile visible preview button */}
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 lg:hidden">
-                                <button
-                                    onClick={() => setShowPreview(true)}
-                                    className="btn bg-white text-foreground shadow-xl rounded-full px-6 py-3 font-medium"
-                                >
-                                    <Eye className="w-5 h-5 text-primary" />
-                                    Preview
                                 </button>
                             </div>
                         </div>

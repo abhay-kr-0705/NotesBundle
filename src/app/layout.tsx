@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
@@ -65,12 +65,6 @@ export const metadata: Metadata = {
         },
     },
     manifest: '/manifest.json',
-    themeColor: '#2563eb',
-    viewport: {
-        width: 'device-width',
-        initialScale: 1,
-        maximumScale: 1,
-    },
     appleWebApp: {
         title: 'NotesBundle',
         statusBarStyle: 'default',
@@ -84,6 +78,13 @@ export const metadata: Metadata = {
     other: {
         'mobile-web-app-capable': 'yes',
     },
+};
+
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    themeColor: '#2563eb',
 };
 
 export default function RootLayout({

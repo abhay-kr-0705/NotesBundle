@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { generateSignedUrl, extractVersionAndPublicId } from '@/lib/cloudinary';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,28 +27,15 @@ export async function GET(
             return NextResponse.json({ error: 'No preview file available' }, { status: 404 });
         }
 
-        console.log(`Preview API: Found URL for ${noteId}: ${url}`);
+        console.log(`Preview API: Redirecting to URL for ${noteId}: ${url}`);
 
-        const fileDetails = extractVersionAndPublicId(url);
-
-        if (!fileDetails) {
-            // Fallback to original URL if extracting ID fails
-            console.warn(`Preview API: Failed to extract details from URL: ${url}`);
-            return NextResponse.redirect(url);
-        }
-
-        const { version, publicId } = fileDetails;
-
-        // Generate signed URL
-        // Reverting to 'upload' type as 'authenticated' returned 404 for existing files.
-        // We rely on sign_url=true for access control.
-        const signedUrl = generateSignedUrl(publicId, 3600, 'upload', version);
-        console.log(`Preview API: Generated signed URL: ${signedUrl}`);
-
-        return NextResponse.redirect(signedUrl);
+        // Files uploaded with type 'upload' are publicly accessible.
+        // Use the direct Cloudinary URL to avoid signed URL issues.
+        return NextResponse.redirect(url);
 
     } catch (error: any) {
         console.error('Preview error:', error);
         return NextResponse.json({ error: 'Failed to generate preview', details: error.message || 'Unknown error' }, { status: 500 });
     }
 }
+

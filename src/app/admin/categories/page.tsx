@@ -93,6 +93,18 @@ export default function CategoriesPage() {
         setIsModalOpen(true);
     };
 
+    const handleAddSubcategory = (parentCategory: Category) => {
+        setEditingCategory(null);
+        setFormData({
+            name: '',
+            slug: '',
+            parentId: parentCategory.id,
+            description: '',
+            icon: ''
+        });
+        setIsModalOpen(true);
+    };
+
     const handleSlugify = (text: string) => {
         return text
             .toLowerCase()
@@ -234,6 +246,13 @@ export default function CategoriesPage() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                        onClick={() => handleAddSubcategory(category)}
+                                        className="p-2 hover:bg-primary/10 rounded-lg border border-transparent hover:border-primary/20 text-primary transition-all"
+                                        title="Add Subcategory"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                    </button>
                                     <button
                                         onClick={() => handleOpenModal(category)}
                                         className="p-2 hover:bg-white rounded-lg border border-transparent hover:border-border text-slate-600 transition-all"
