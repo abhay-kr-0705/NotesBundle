@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Save, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AdminSettingsPage() {
     const [isLoading, setIsLoading] = useState(false);
+    const [isFetching, setIsFetching] = useState(true);
 
-    // Placeholder settings for now
     const [settings, setSettings] = useState({
         siteName: 'NotesBundle',
         supportEmail: 'support@notesbundle.com',
@@ -14,14 +15,63 @@ export default function AdminSettingsPage() {
         allowSignups: true,
     });
 
+    // Fetch settings from API
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await fetch('/api/admin/settings');
+                if (res.ok) {
+                    const data = await res.json();
+                    setSettings({
+                        siteName: data.siteName || 'NotesBundle',
+                        supportEmail: data.supportEmail || '',
+                        maintenanceMode: data.maintenanceMode === 'true',
+                        allowSignups: data.allowSignups !== 'false',
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to fetch settings:', error);
+            } finally {
+                setIsFetching(false);
+            }
+        };
+        fetchSettings();
+    }, []);
+
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setIsLoading(false);
-        alert('Settings saved successfully!');
+        try {
+            const res = await fetch('/api/admin/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    siteName: settings.siteName,
+                    supportEmail: settings.supportEmail,
+                    maintenanceMode: String(settings.maintenanceMode),
+                    allowSignups: String(settings.allowSignups),
+                }),
+            });
+
+            if (res.ok) {
+                toast.success('Settings saved successfully!');
+            } else {
+                toast.error('Failed to save settings');
+            }
+        } catch (error) {
+            toast.error('Failed to save settings');
+        } finally {
+            setIsLoading(false);
+        }
     };
+
+    if (isFetching) {
+        return (
+            <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+        );
+    }
 
     return (
         <div>

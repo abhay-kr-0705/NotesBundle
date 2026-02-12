@@ -236,6 +236,15 @@ model Analytics {
   updatedAt   DateTime @updatedAt
 }
 
+// Site Settings (key-value store)
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum Role {
   USER
   ADMIN
@@ -252,3 +261,4 @@ enum DiscountType {
   PERCENTAGE
   FLAT
 }
+

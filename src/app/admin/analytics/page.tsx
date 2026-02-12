@@ -88,17 +88,34 @@ export default async function AdminAnalyticsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 {/* Traffic Chart */}
                 <div className="card p-6">
-                    <h2 className="font-semibold text-foreground mb-4">Traffic Overview</h2>
-                    <div className="h-64 flex items-end justify-center">
-                        <p className="text-muted-foreground">Detailed traffic historical data collection is not yet enabled.</p>
-                        {/* 
-                         To implement this real-time, we would need to group PageViews by date.
-                         Currently PageView model has createdAt.
-                         Similar logic to Dashboard revenue chart can be applied if we fetch PageViews grouped by date.
-                         For now, let's leave a placeholder message or implement if requested strictly.
-                        */}
+                    <h2 className="font-semibold text-foreground mb-4">Traffic Overview (Last 7 Days)</h2>
+                    <div className="h-64 flex items-end justify-between gap-2">
+                        {data.dailyAnalytics.length === 0 ? (
+                            <div className="w-full h-full flex items-center justify-center bg-slate-50 rounded-lg">
+                                <p className="text-muted-foreground">No traffic data yet. Views will appear as users visit your site.</p>
+                            </div>
+                        ) : (
+                            data.dailyAnalytics.map((day, i) => {
+                                const maxViews = Math.max(...data.dailyAnalytics.map(d => d.totalViews), 1);
+                                const height = (day.totalViews / maxViews) * 100;
+                                return (
+                                    <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group">
+                                        <div
+                                            className="w-full max-w-[40px] bg-blue-500/80 rounded-t-md hover:bg-blue-500 transition-all relative"
+                                            style={{ height: `${height}%`, minHeight: '4px' }}
+                                        >
+                                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                                {day.totalViews} views
+                                            </div>
+                                        </div>
+                                        <span className="text-xs text-muted-foreground mt-2">{new Date(day.date).getDate()}</span>
+                                    </div>
+                                );
+                            })
+                        )}
                     </div>
                 </div>
+
 
                 {/* Revenue Chart */}
                 <div className="card p-6">
