@@ -1,0 +1,43 @@
+=== CREATE PAGE (create/page.tsx) ===
+Upload/External toggle: true
+External URL input: true
+File upload: true
+Thumbnail upload: true
+Category dropdown: true
+Pricing fields: true
+Preview pages: true
+MultiImageUpload: true
+Publish/Featured checkboxes: true
+BRANCHES import: true
+Submit handler: true
+University field: true
+Semester field: true
+Branch field: true
+Subject field: true
+Tags field: true
+Language field: true
+
+=== EDIT PAGE ([id]/page.tsx) ===
+Upload/External toggle: true
+External URL input: true
+Fetch existing note: true
+PUT method: true
+Category dropdown: true
+Pricing fields: true
+Preview pages: true
+MultiImageUpload: true
+Publish/Featured checkboxes: true
+File upload: true
+Thumbnail upload: true
+Submit handler: true
+
+=== OTHER IMPLEMENTATION PLAN ITEMS ===
+Schema externalUrl: true
+API POST handles externalUrl: true
+API PUT handles externalUrl: true
+My Notes page exists: true
+NoteClient handles externalUrl: true
+Navbar has My Notes: true
+Navbar has mobile accordion: false
+Homepage has Government Exam: false
+Constants has Government Exams: true

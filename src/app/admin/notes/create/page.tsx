@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import {
     ArrowLeft,
     Upload,
-    X,
     Loader2
 } from 'lucide-react';
 import { BRANCHES } from '@/lib/constants';
@@ -64,7 +63,7 @@ export default function NewNotePage() {
         previewPages: '5',
         fileUrl: '',
         previewUrl: '',
-        previewImages: [] as string[],
+        previewImages: new Array<string>(),
         thumbnailUrl: '',
         isFeatured: false,
         isPublished: true,
@@ -505,7 +504,7 @@ export default function NewNotePage() {
                                                 <option value={parent.id}>{parent.name} (Main)</option>
                                                 {children.map(child => (
                                                     <option key={child.id} value={child.id}>
-                                                        &nbsp;&nbsp;&nbsp;&nbsp;{child.name}
+                                                        {'\u00A0\u00A0\u00A0\u00A0'}{child.name}
                                                     </option>
                                                 ))}
                                             </optgroup>

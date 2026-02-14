@@ -1,0 +1,7 @@
+﻿ M public/sw.js
+?? build_output.txt
+?? git_status.txt
+main
+8470bc5 change in sw.js to fix the deployment error
+25d1ff1 trying to fix build errors during deployment
+2996adc feat: add notes by url or link form admin panel, accompanied by a TypeScript syntax checking script and its output.

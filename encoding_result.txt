@@ -1,0 +1,14 @@
+src/app/admin/notes/create/page.tsx:
+  Had BOM: false
+  CRLF count: 0
+  LF-only count: 594
+  Size after fix: 32648 bytes
+  Lines: 595
+src/app/admin/notes/[id]/page.tsx:
+  Had BOM: false
+  CRLF count: 0
+  LF-only count: 665
+  Size after fix: 35655 bytes
+  Lines: 666
+
+Done! Files normalized to LF UTF-8 without BOM.

@@ -1,0 +1,130 @@
+﻿
+> notesbundle@0.1.0 build
+> next build
+
+  Γû▓ Next.js 14.2.5
+  - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+ Γ£ô (pwa) Compiling for server...
+ Γ£ô (pwa) Compiling for server...
+ Γ£ô (pwa) Compiling for client (static)...
+ Γùï (pwa) Service worker: C:\Users\abhay\OneDrive\Desktop\NotesBundle\public\sw.js
+ Γùï (pwa)   URL: /sw.js
+ Γùï (pwa)   Scope: /
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+Email Config Check: {
+  userPresent: true,
+  passPresent: true,
+  host: 'smtp.gmail.com',
+  userLength: 28
+}
+Email Config Check: {
+  userPresent: true,
+  passPresent: true,
+  host: 'smtp.gmail.com',
+  userLength: 28
+}
+Email Config Check: {
+  userPresent: true,
+  passPresent: true,
+  host: 'smtp.gmail.com',
+  userLength: 28
+}
+   Generating static pages (0/49) ...
+Email Config Check: {
+  userPresent: true,
+  passPresent: true,
+  host: 'smtp.gmail.com',
+  userLength: 28
+}
+Email Config Check: {
+  userPresent: true,
+  passPresent: true,
+  host: 'smtp.gmail.com',
+  userLength: 28
+}
+   Generating static pages (12/49) 
+   Generating static pages (24/49) 
+   Generating static pages (36/49) 
+ Γ£ô Generating static pages (49/49)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+Γöî Γùï /                                    2.94 kB        99.2 kB
+Γö£ Γùï /_not-found                          875 B          90.4 kB
+Γö£ Γùï /about                               191 B          96.5 kB
+Γö£ ╞Æ /admin                               1.22 kB        97.5 kB
+Γö£ ╞Æ /admin/analytics                     161 B          89.7 kB
+Γö£ ╞Æ /admin/categories                    3.77 kB        96.8 kB
+Γö£ ╞Æ /admin/coupons                       4.51 kB        97.5 kB
+Γö£ ╞Æ /admin/notes                         4 kB            104 kB
+Γö£ ╞Æ /admin/notes/[id]                    5.58 kB         102 kB
+Γö£ ╞Æ /admin/notes/create                  5.18 kB         101 kB
+Γö£ ╞Æ /admin/orders                        3.04 kB        92.6 kB
+Γö£ ╞Æ /admin/settings                      2.1 kB         95.1 kB
+Γö£ ╞Æ /admin/users                         2.67 kB         106 kB
+Γö£ ╞Æ /api/admin/categories                0 B                0 B
+Γö£ ╞Æ /api/admin/categories/[id]           0 B                0 B
+Γö£ ╞Æ /api/admin/coupons                   0 B                0 B
+Γö£ ╞Æ /api/admin/coupons/[id]              0 B                0 B
+Γö£ ╞Æ /api/admin/notes                     0 B                0 B
+Γö£ ╞Æ /api/admin/settings                  0 B                0 B
+Γö£ ╞Æ /api/admin/users                     0 B                0 B
+Γö£ ╞Æ /api/analytics                       0 B                0 B
+Γö£ ╞Æ /api/auth/[...nextauth]              0 B                0 B
+Γö£ ╞Æ /api/auth/forgot-password            0 B                0 B
+Γö£ ╞Æ /api/auth/register                   0 B                0 B
+Γö£ ╞Æ /api/auth/reset-password             0 B                0 B
+Γö£ ╞Æ /api/auth/send-otp                   0 B                0 B
+Γö£ ╞Æ /api/auth/verify                     0 B                0 B
+Γö£ ╞Æ /api/auth/verify-otp                 0 B                0 B
+Γö£ ╞Æ /api/coupons                         0 B                0 B
+Γö£ ╞Æ /api/coupons/[id]                    0 B                0 B
+Γö£ ╞Æ /api/downloads/[noteId]              0 B                0 B
+Γö£ ╞Æ /api/notes                           0 B                0 B
+Γö£ ╞Æ /api/notes/[id]                      0 B                0 B
+Γö£ ╞Æ /api/notes/[id]/download             0 B                0 B
+Γö£ ╞Æ /api/notes/[id]/preview              0 B                0 B
+Γö£ ╞Æ /api/payments/create                 0 B                0 B
+Γö£ ╞Æ /api/payments/verify                 0 B                0 B
+Γö£ ╞Æ /api/recommendations                 0 B                0 B
+Γö£ ╞Æ /api/upload                          0 B                0 B
+Γö£ ╞Æ /api/upload/image                    0 B                0 B
+Γö£ ╞Æ /api/user/preferences                0 B                0 B
+Γö£ Γùï /cart                                4.53 kB         101 kB
+Γö£ ╞Æ /category/[slug]                     191 B          96.5 kB
+Γö£ Γùï /checkout                            4.51 kB         104 kB
+Γö£ Γùï /checkout/success                    1.86 kB        98.2 kB
+Γö£ Γùï /contact                             161 B          89.7 kB
+Γö£ Γùï /faq                                 161 B          89.7 kB
+Γö£ Γùï /forgot-password                     1.96 kB         108 kB
+Γö£ ╞Æ /free-resources                      191 B          96.5 kB
+Γö£ Γùï /login                               2.34 kB         109 kB
+Γö£ ╞Æ /my-notes                            191 B          96.5 kB
+Γö£ ╞Æ /notes                               3.23 kB        99.5 kB
+Γö£ ╞Æ /notes/[slug]                        7.69 kB         104 kB
+Γö£ Γùï /orders                              2.1 kB          109 kB
+Γö£ Γùï /privacy                             161 B          89.7 kB
+Γö£ Γùï /profile                             2.9 kB          109 kB
+Γö£ Γùï /refund                              161 B          89.7 kB
+Γö£ Γùï /reset-password                      2.5 kB          108 kB
+Γö£ Γùï /robots.txt                          0 B                0 B
+Γö£ Γùï /search                              3.24 kB        99.5 kB
+Γö£ Γùï /shipping-policy                     161 B          89.7 kB
+Γö£ Γùï /signup                              5.32 kB         102 kB
+Γö£ Γùï /sitemap.xml                         0 B                0 B
+Γö£ Γùï /terms                               191 B          96.5 kB
+Γöö Γùï /wishlist                            1.94 kB         108 kB
++ First Load JS shared by all            89.5 kB
+  Γö£ chunks/5190-5d0912a8f78b0876.js      33.8 kB
+  Γö£ chunks/fd9d1056-2375352a2ab81c1f.js  53.6 kB
+  Γöö other shared chunks (total)          2.07 kB
+
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+

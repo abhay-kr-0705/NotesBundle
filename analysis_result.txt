@@ -1,0 +1,19 @@
+Line 149: braces=3 parens=0 | } finally {
+Line 150: braces=3 parens=0 | setIsLoading(false);
+Line 151: braces=2 parens=0 | }
+Line 152: braces=1 parens=0 | };
+Line 153: braces=1 parens=0 | 
+Line 154: braces=1 parens=1 | return (
+Line 155: braces=1 parens=1 | <div>
+Line 156: braces=1 parens=1 | {/* Header */}
+Line 157: braces=1 parens=1 | <div className="flex items-center gap-4 mb-6">
+Line 158: braces=1 parens=1 | <Link href="/admin/notes" className="p-2 rounded-lg hover:bg
+Line 159: braces=1 parens=1 | <ArrowLeft className="w-5 h-5" />
+Line 160: braces=1 parens=1 | </Link>
+Line 161: braces=1 parens=1 | <div>
+
+Final state: braces=0 parens=0
+Total lines: 595
+Contains &nbsp;: true
+Contains 'as string[]': true
+Potentially unused X import: true
