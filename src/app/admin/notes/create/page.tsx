@@ -1,4 +1,5 @@
 'use client';
+// Fixed syntax error in form tag structure
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
