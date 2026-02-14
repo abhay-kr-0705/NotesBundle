@@ -32,7 +32,7 @@ export const CATEGORIES = [
         ],
     },
     {
-        name: 'Competitive Exams',
+        name: 'Government Exams',
         slug: 'competitive',
         icon: '🏆',
         description: 'Study materials for government job exams',

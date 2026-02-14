@@ -93,6 +93,7 @@ model Note {
   price           Float       @default(0) // 0 means free
   discountPrice   Float?
   fileUrl         String?     // PDF or file URL
+  externalUrl     String?     // Direct external link (e.g. Google Drive)
   previewUrl      String?     // Preview PDF URL (limited pages)
   previewImages   String[]    // Array of image URLs for manual preview pages
   previewPages    Int         @default(5) // Number of pages available for preview

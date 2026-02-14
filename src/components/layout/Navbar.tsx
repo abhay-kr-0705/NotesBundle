@@ -19,7 +19,9 @@ import {
     Book,
     LogOut,
     Settings,
-    Heart
+    Heart,
+    Minus,
+    Plus
 } from 'lucide-react';
 
 
@@ -34,6 +36,17 @@ export default function Navbar() {
     const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     const cartItems = useCartStore((state) => state.items);
+
+    // Mobile menu state for categories
+    const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+
+    const toggleCategory = (categoryId: string) => {
+        if (expandedCategory === categoryId) {
+            setExpandedCategory(null);
+        } else {
+            setExpandedCategory(categoryId);
+        }
+    };
 
     const [categories, setCategories] = useState<any[]>([]);
 
@@ -154,6 +167,11 @@ export default function Navbar() {
                         <Link href="/notes" className="text-muted-foreground hover:text-foreground font-medium transition-colors">
                             All Notes
                         </Link>
+                        {session && (
+                            <Link href="/my-notes" className="text-muted-foreground hover:text-foreground font-medium transition-colors">
+                                My Notes
+                            </Link>
+                        )}
                         <Link href="/free-resources" className="text-muted-foreground hover:text-foreground font-medium transition-colors">
                             Free Resources
                         </Link>
@@ -236,8 +254,15 @@ export default function Navbar() {
                                                 onClick={() => setIsUserMenuOpen(false)}
                                                 className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-secondary transition-colors"
                                             >
-                                                <FileText className="w-4 h-4 text-muted-foreground" />
                                                 <span>My Orders</span>
+                                            </Link>
+                                            <Link
+                                                href="/my-notes"
+                                                onClick={() => setIsUserMenuOpen(false)}
+                                                className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-secondary transition-colors"
+                                            >
+                                                <BookOpen className="w-4 h-4 text-muted-foreground" />
+                                                <span>My Notes</span>
                                             </Link>
                                             <Link
                                                 href="/wishlist"
@@ -302,24 +327,33 @@ export default function Navbar() {
 
                                     return (
                                         <div key={category.id} className="border-b border-border/50 last:border-0">
-                                            <Link
-                                                href={`/category/${category.slug}`}
-                                                onClick={() => setIsMobileMenuOpen(false)}
-                                                className="flex items-center gap-3 px-4 py-3 hover:bg-secondary rounded-xl transition-colors"
+                                            <div className="flex items-center justify-between px-4 py-3 hover:bg-secondary rounded-xl transition-colors cursor-pointer"
+                                                onClick={() => toggleCategory(category.id)}
                                             >
-                                                <Icon className="w-5 h-5 text-primary" />
-                                                <span className="font-medium">{category.name}</span>
-                                            </Link>
+                                                <div className="flex items-center gap-3">
+                                                    <Icon className="w-5 h-5 text-primary" />
+                                                    <span className="font-medium">{category.name}</span>
+                                                </div>
+                                                {subcategories.length > 0 && (
+                                                    <button className="p-1">
+                                                        {expandedCategory === category.id ? (
+                                                            <Minus className="w-4 h-4 text-muted-foreground" />
+                                                        ) : (
+                                                            <Plus className="w-4 h-4 text-muted-foreground" />
+                                                        )}
+                                                    </button>
+                                                )}
+                                            </div>
 
                                             {/* Mobile Subcategories */}
-                                            {subcategories.length > 0 && (
-                                                <div className="pl-12 pr-4 pb-2 space-y-2">
+                                            {subcategories.length > 0 && expandedCategory === category.id && (
+                                                <div className="pl-12 pr-4 pb-2 space-y-2 animate-slide-down">
                                                     {subcategories.map(sub => (
                                                         <Link
                                                             key={sub.id}
                                                             href={`/category/${sub.slug}`}
                                                             onClick={() => setIsMobileMenuOpen(false)}
-                                                            className="block py-1 text-sm text-slate-600 hover:text-primary transition-colors border-l-2 border-border pl-3"
+                                                            className="block py-2 text-sm text-slate-600 hover:text-primary transition-colors border-l-2 border-border pl-3"
                                                         >
                                                             {sub.name}
                                                         </Link>
@@ -370,6 +404,14 @@ export default function Navbar() {
                                     >
                                         <FileText className="w-5 h-5 text-muted-foreground" />
                                         My Orders
+                                    </Link>
+                                    <Link
+                                        href="/my-notes"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3 font-medium hover:bg-secondary rounded-xl transition-colors"
+                                    >
+                                        <BookOpen className="w-5 h-5 text-muted-foreground" />
+                                        My Notes
                                     </Link>
                                     <Link
                                         href="/wishlist"

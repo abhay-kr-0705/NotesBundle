@@ -19,6 +19,7 @@ import {
     Clock,
     Share,
     X,
+    ExternalLink,
 } from 'lucide-react';
 import { useCartStore } from '@/lib/store';
 import dynamic from 'next/dynamic';
@@ -68,8 +69,12 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
         : 0;
 
     const handleDownload = () => {
-        // Trigger download via API
-        window.open(`/api/notes/${note.id}/download`, '_blank');
+        if (note.externalUrl) {
+            window.open(note.externalUrl, '_blank');
+        } else {
+            // Trigger download via API
+            window.open(`/api/notes/${note.id}/download`, '_blank');
+        }
     };
 
     return (
@@ -246,8 +251,17 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
                                         onClick={handleDownload}
                                         className="btn-primary w-full py-4 text-base shadow-xl shadow-blue-500/20"
                                     >
-                                        <Download className="w-5 h-5" />
-                                        Download Now
+                                        {note.externalUrl ? (
+                                            <>
+                                                <ExternalLink className="w-5 h-5" />
+                                                Open Link
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Download className="w-5 h-5" />
+                                                Download Now
+                                            </>
+                                        )}
                                     </button>
                                 ) : (
                                     <>
@@ -373,8 +387,17 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
                                 onClick={handleDownload}
                                 className="btn-primary w-full py-3 rounded-xl shadow-lg shadow-blue-500/20"
                             >
-                                <Download className="w-5 h-5 mr-2" />
-                                Download
+                                {note.externalUrl ? (
+                                    <>
+                                        <ExternalLink className="w-5 h-5 mr-2" />
+                                        Open
+                                    </>
+                                ) : (
+                                    <>
+                                        <Download className="w-5 h-5 mr-2" />
+                                        Download
+                                    </>
+                                )}
                             </button>
                         ) : (
                             <>
