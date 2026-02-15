@@ -258,7 +258,7 @@ export default function AdminNotesPage() {
                                                                 <Eye className="w-4 h-4" /> View
                                                             </Link>
                                                             <Link
-                                                                href={`/admin/notes/${note.id}/edit`}
+                                                                href={`/admin/notes/${note.id}`}
                                                                 className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-secondary transition-colors"
                                                                 onClick={() => setActiveDropdown(null)}
                                                             >
