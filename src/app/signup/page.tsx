@@ -316,7 +316,7 @@ export default function SignUpPage() {
 
                                 <div>
                                     <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
-                                        Phone Number (Optional)
+                                        Phone Number
                                     </label>
                                     <div className="relative">
                                         <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -327,6 +327,7 @@ export default function SignUpPage() {
                                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                             placeholder="Enter your phone number"
                                             className="input !pl-12"
+                                            required
                                         />
                                     </div>
                                 </div>
@@ -427,8 +428,8 @@ export default function SignUpPage() {
                                                         type="button"
                                                         onClick={() => toggleInterest(category.slug)}
                                                         className={`p-4 rounded-xl border-2 text-left transition-all duration-200 relative overflow-hidden ${isSelected
-                                                                ? 'border-indigo-600 bg-indigo-50 shadow-sm'
-                                                                : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+                                                            ? 'border-indigo-600 bg-indigo-50 shadow-sm'
+                                                            : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
                                                             }`}
                                                     >
                                                         {isSelected && (

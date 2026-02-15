@@ -32,7 +32,7 @@ export default function Footer() {
                                     className="w-full h-full object-cover"
                                 />
                             </div>
-                            <span className="text-xl font-bold text-white font-display">
+                            <span className="text-2xl font-bold text-white font-display leading-none">
                                 Notes<span className="text-primary">Bundle</span>
                             </span>
                         </Link>

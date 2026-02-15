@@ -12,23 +12,30 @@ import {
     Download,
     Users,
     CheckCircle,
-    Sparkles
+    Sparkles,
+    Cog,
+    Landmark
 } from 'lucide-react';
 import PopularTags from '@/components/seo/PopularTags';
 import TestimonialsCarousel from '@/components/TestimonialsCarousel';
 
 const categoryIcons: { [key: string]: any } = {
     'gate': GraduationCap,
-    'engineering': BookOpen,
-    'competitive': Trophy,
+    'engineering': Cog,
+    'competitive': Landmark,
+    'government-exams': Landmark,
     'coding': Code,
     'pyqs': FileText,
     'handbooks': Book,
 };
 
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export default async function Home() {
+    const session = await getServerSession(authOptions);
+
     // Fetch categories
     const categories = await prisma.category.findMany({
         where: { parentId: null },
@@ -307,8 +314,8 @@ export default async function Home() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {categories.map((category, index) => {
-                            const Icon = categoryIcons[category.slug] || BookOpen;
-                            const categoryName = category.slug === 'competitive' ? 'Government Exams' : category.name;
+                            const Icon = categoryIcons[category.slug] || categoryIcons[category.slug.startsWith('competitive') ? 'competitive' : 'engineering'] || BookOpen;
+                            const categoryName = category.slug === 'competitive' || category.slug === 'government-exams' ? 'Government Exams' : category.name;
                             return (
                                 <Link
                                     key={category.slug}
@@ -358,26 +365,52 @@ export default async function Home() {
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="py-16 bg-gradient-primary relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('/images/grid-white.svg')] bg-center opacity-10"></div>
-                <div className="container-custom relative z-10 text-center">
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-5">
-                        Ready to Start Your Journey?
-                    </h2>
-                    <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-                        Join thousands of students who trust NotesBundle for their exam preparation
-                    </p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <Link href="/signup" className="btn bg-white text-primary hover:bg-slate-100 shadow-lg">
-                            Get Started Free <ArrowRight className="w-5 h-5" />
-                        </Link>
-                        <Link href="/notes" className="btn border-2 border-white text-white hover:bg-white/10">
-                            Browse All Notes
-                        </Link>
+            {/* CTA Section - Conditionally Rendered */}
+            {!session && (
+                <section className="py-12 relative overflow-hidden">
+                    {/* Dark Premium Background with Gradient */}
+                    <div className="absolute inset-0 bg-slate-900">
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/50 via-slate-900 to-violet-900/50"></div>
+                        <div className="absolute inset-0 bg-[url('/images/grid-white.svg')] bg-center opacity-[0.03]"></div>
                     </div>
-                </div>
-            </section>
+
+                    {/* Decorative Blobs */}
+                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/20 rounded-full blur-[100px] translate-x-1/3 -translate-y-1/3 animate-pulse-slow"></div>
+                    <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-violet-500/20 rounded-full blur-[100px] -translate-x-1/3 translate-y-1/3 animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
+
+                    <div className="container-custom relative z-10">
+                        <div className="max-w-4xl mx-auto text-center">
+                            <div className="inline-block mb-6 animate-fade-in">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/10 text-white/90 font-medium text-sm shadow-xl">
+                                    <Sparkles className="w-4 h-4 text-indigo-300" />
+                                    <span>Start your success story today</span>
+                                </div>
+                            </div>
+
+                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 font-display leading-tight tracking-tight">
+                                Ready to Ace Your Exams?
+                            </h2>
+
+                            <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-2xl mx-auto font-light leading-relaxed">
+                                Join thousands of students who trust <span className="text-indigo-300 font-medium">NotesBundle</span> for their daily preparation.
+                            </p>
+
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
+                                <Link href="/signup" className="group relative px-8 py-4 bg-white text-indigo-950 font-bold text-lg rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] hover:scale-105 transition-all duration-300 overflow-hidden">
+                                    <span className="relative z-10 flex items-center gap-2">
+                                        Get Started Free <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    </span>
+                                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-50 to-white opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                </Link>
+
+                                <Link href="/login" className="px-8 py-4 bg-white/5 text-white border border-white/10 font-semibold text-lg rounded-xl hover:bg-white/10 hover:border-white/20 hover:scale-105 backdrop-blur-md transition-all duration-300">
+                                    Login to Account
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* Popular SEO Tags */}
             <PopularTags />

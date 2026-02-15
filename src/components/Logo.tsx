@@ -30,7 +30,7 @@ export default function Logo({ className = '', variant = 'default' }: LogoProps)
                 />
             </div>
             <div className="flex flex-col -space-y-1">
-                <span className="text-xl font-bold text-slate-900 font-display tracking-tight">
+                <span className="text-2xl font-bold text-slate-900 font-display tracking-tight leading-none">
                     Notes<span className="text-indigo-600">Bundle</span>
                 </span>
             </div>
