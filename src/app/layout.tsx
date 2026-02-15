@@ -95,8 +95,8 @@ export default function RootLayout({
     return (
         <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
             <head>
-                <link rel="icon" href="/favicon.ico" sizes="any" />
-                <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+                <link rel="icon" href="/images/logo.jpg" sizes="any" />
+                <link rel="apple-touch-icon" href="/images/logo.jpg" />
                 <meta name="theme-color" content="#2563eb" />
                 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5736081163311751" crossOrigin="anonymous"></script>
             </head>
