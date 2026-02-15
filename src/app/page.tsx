@@ -417,3 +417,5 @@ export default async function Home() {
         </div>
     );
 }
+
+// End of Home component
