@@ -37,7 +37,10 @@ export default async function Home() {
                 select: { notes: true }
             }
         },
-        orderBy: { name: 'asc' },
+        orderBy: [
+            { order: 'asc' },
+            { name: 'asc' },
+        ],
     });
 
     // Fetch featured notes
@@ -94,7 +97,7 @@ export default async function Home() {
                         </h1>
 
                         <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                            Get high-quality digital notes for GATE, Engineering, Competitive Exams,
+                            Get high-quality digital and handwritten notes for GATE, Government Exams (SSC, RAILWAY, UPSC, ...),
                             Coding, and more. Affordable study materials with instant access.
                         </p>
 
@@ -126,8 +129,11 @@ export default async function Home() {
                             <Link href="/search?q=ssc" className="badge bg-white border border-border hover:border-primary hover:text-primary transition-colors">
                                 SSC Preparation
                             </Link>
-                            <Link href="/search?q=python" className="badge bg-white border border-border hover:border-primary hover:text-primary transition-colors">
-                                Python Notes
+                            <Link href="/search?q=railway" className="badge bg-white border border-border hover:border-primary hover:text-primary transition-colors">
+                                Railway
+                            </Link>
+                            <Link href="/search?q=upsc" className="badge bg-white border border-border hover:border-primary hover:text-primary transition-colors">
+                                UPSC
                             </Link>
                         </div>
                     </div>
@@ -302,6 +308,7 @@ export default async function Home() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {categories.map((category, index) => {
                             const Icon = categoryIcons[category.slug] || BookOpen;
+                            const categoryName = category.slug === 'competitive' ? 'Government Exams' : category.name;
                             return (
                                 <Link
                                     key={category.slug}
@@ -315,7 +322,7 @@ export default async function Home() {
                                         </div>
                                         <div className="flex-1">
                                             <h3 className="text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                                                {category.name}
+                                                {categoryName}
                                             </h3>
                                             <p className="text-muted-foreground text-sm mb-3">
                                                 {category.description}

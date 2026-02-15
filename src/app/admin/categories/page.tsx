@@ -22,6 +22,7 @@ interface Category {
     parentId: string | null;
     description: string | null;
     icon: string | null;
+    order: number;
     children?: Category[];
     _count?: {
         notes: number;
@@ -45,7 +46,8 @@ export default function CategoriesPage() {
         slug: '',
         parentId: '',
         description: '',
-        icon: ''
+        icon: '',
+        order: 0
     });
 
     const flatCategories = categories; // API returns flat list currently, will organize for display
@@ -78,7 +80,8 @@ export default function CategoriesPage() {
                 slug: category.slug,
                 parentId: category.parentId || '',
                 description: category.description || '',
-                icon: category.icon || ''
+                icon: category.icon || '',
+                order: category.order || 0
             });
         } else {
             setEditingCategory(null);
@@ -87,7 +90,8 @@ export default function CategoriesPage() {
                 slug: '',
                 parentId: '',
                 description: '',
-                icon: ''
+                icon: '',
+                order: 0
             });
         }
         setIsModalOpen(true);
@@ -100,7 +104,8 @@ export default function CategoriesPage() {
             slug: '',
             parentId: parentCategory.id,
             description: '',
-            icon: ''
+            icon: '',
+            order: 0
         });
         setIsModalOpen(true);
     };
@@ -239,6 +244,9 @@ export default function CategoriesPage() {
                                             <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-normal">
                                                 /{category.slug}
                                             </span>
+                                            <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-mono">
+                                                #{category.order}
+                                            </span>
                                         </h3>
                                         <p className="text-sm text-muted-foreground">
                                             {category._count?.notes || 0} notes • {getChildrenFor(category.id).length} subcategories
@@ -369,6 +377,17 @@ export default function CategoriesPage() {
                                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                                     placeholder="Optional description"
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-foreground mb-1">Order Priority</label>
+                                <input
+                                    type="number"
+                                    className="input"
+                                    value={formData.order}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
+                                    placeholder="0 (Lower shows first)"
+                                />
+                                <p className="text-xs text-muted-foreground mt-1">Lower numbers appear first (e.g. 1, 2, 3)</p>
                             </div>
 
                             <div className="flex gap-3 pt-4">

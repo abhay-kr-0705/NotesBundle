@@ -23,7 +23,7 @@ export const metadata: Metadata = {
         default: 'NotesBundle - Premium Study Materials & Digital Notes',
         template: '%s | NotesBundle',
     },
-    description: 'Get high-quality digital notes for GATE, Engineering, Competitive Exams, Coding, and more. Affordable study materials with instant download.',
+    description: 'Download premium quality handwritten and digital notes for GATE, Government Exams, Engineering, and Coding. Instant access to best study materials.',
     keywords: [
         'study notes',
         'GATE preparation',

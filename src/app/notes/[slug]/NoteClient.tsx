@@ -292,7 +292,21 @@ export default function NoteClient({ note, relatedNotes }: NoteClientProps) {
                                     <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
                                     Wishlist
                                 </button>
-                                <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+                                <button
+                                    onClick={() => {
+                                        if (navigator.share) {
+                                            navigator.share({
+                                                title: note.title,
+                                                text: `Check out this note: ${note.title}`,
+                                                url: window.location.href,
+                                            }).catch((error) => console.log('Error sharing', error));
+                                        } else {
+                                            navigator.clipboard.writeText(window.location.href);
+                                            alert('Link copied to clipboard!');
+                                        }
+                                    }}
+                                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+                                >
                                     <Share2 className="w-5 h-5" />
                                     Share
                                 </button>

@@ -16,9 +16,10 @@ export async function GET() {
                 parent: true,
                 children: true,
             },
-            orderBy: {
-                name: 'asc',
-            },
+            orderBy: [
+                { order: 'asc' },
+                { name: 'asc' },
+            ],
         });
         return NextResponse.json(categories);
     } catch (error) {
@@ -67,6 +68,7 @@ export async function POST(request: Request) {
                 description,
                 parentId: parentId || null,
                 icon,
+                order: body.order ? parseInt(body.order) : 0,
             },
         });
 
@@ -128,6 +130,7 @@ export async function PUT(request: Request) {
                 description,
                 parentId: parentId || null,
                 icon,
+                order: body.order ? parseInt(body.order) : 0,
             },
         });
 
