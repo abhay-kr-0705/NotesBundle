@@ -1,0 +1,136 @@
+
+> notesbundle@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.5
+  - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+ ✓ (pwa) Compiling for server...
+ ✓ (pwa) Compiling for server...
+ ✓ (pwa) Compiling for client (static)...
+ ○ (pwa) Service worker: C:\Users\abhay\OneDrive\Desktop\NotesBundle\public\sw.js
+ ○ (pwa)   URL: /sw.js
+ ○ (pwa)   Scope: /
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+Email Config Check: {
+  userPresent: true,
+  passPresent: true,
+  host: 'smtp.gmail.com',
+  userLength: 28
+}
+Email Config Check: {
+  userPresent: true,
+  passPresent: true,
+  host: 'smtp.gmail.com',
+  userLength: 28
+}
+Email Config Check: {
+  userPresent: true,
+  passPresent: true,
+  host: 'smtp.gmail.com',
+  userLength: 28
+}
+   Generating static pages (0/49) ...
+Email Config Check: {
+  userPresent: true,
+  passPresent: true,
+  host: 'smtp.gmail.com',
+  userLength: 28
+}
+   Generating static pages (12/49) 
+   Generating static pages (24/49) 
+Email Config Check: {
+  userPresent: true,
+  passPresent: true,
+  host: 'smtp.gmail.com',
+  userLength: 28
+}
+   Generating static pages (36/49) 
+Email Config Check: {
+  userPresent: true,
+  passPresent: true,
+  host: 'smtp.gmail.com',
+  userLength: 28
+}
+ ✓ Generating static pages (49/49)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ƒ /                                    2.94 kB        99.2 kB
+├ ○ /_not-found                          875 B          90.4 kB
+├ ○ /about                               191 B          96.5 kB
+├ ƒ /admin                               1.22 kB        97.5 kB
+├ ƒ /admin/analytics                     161 B          89.7 kB
+├ ƒ /admin/categories                    3.9 kB         96.9 kB
+├ ƒ /admin/coupons                       4.51 kB        97.5 kB
+├ ƒ /admin/notes                         4 kB            104 kB
+├ ƒ /admin/notes/[id]                    5.58 kB         102 kB
+├ ƒ /admin/notes/create                  5.18 kB         101 kB
+├ ƒ /admin/orders                        3.04 kB        92.5 kB
+├ ƒ /admin/settings                      2.1 kB         95.1 kB
+├ ƒ /admin/users                         2.67 kB         106 kB
+├ ƒ /api/admin/categories                0 B                0 B
+├ ƒ /api/admin/categories/[id]           0 B                0 B
+├ ƒ /api/admin/coupons                   0 B                0 B
+├ ƒ /api/admin/coupons/[id]              0 B                0 B
+├ ƒ /api/admin/notes                     0 B                0 B
+├ ƒ /api/admin/settings                  0 B                0 B
+├ ƒ /api/admin/users                     0 B                0 B
+├ ƒ /api/analytics                       0 B                0 B
+├ ƒ /api/auth/[...nextauth]              0 B                0 B
+├ ƒ /api/auth/forgot-password            0 B                0 B
+├ ƒ /api/auth/register                   0 B                0 B
+├ ƒ /api/auth/reset-password             0 B                0 B
+├ ƒ /api/auth/send-otp                   0 B                0 B
+├ ƒ /api/auth/verify                     0 B                0 B
+├ ƒ /api/auth/verify-otp                 0 B                0 B
+├ ƒ /api/coupons                         0 B                0 B
+├ ƒ /api/coupons/[id]                    0 B                0 B
+├ ƒ /api/downloads/[noteId]              0 B                0 B
+├ ƒ /api/notes                           0 B                0 B
+├ ƒ /api/notes/[id]                      0 B                0 B
+├ ƒ /api/notes/[id]/download             0 B                0 B
+├ ƒ /api/notes/[id]/preview              0 B                0 B
+├ ƒ /api/payments/create                 0 B                0 B
+├ ƒ /api/payments/verify                 0 B                0 B
+├ ƒ /api/recommendations                 0 B                0 B
+├ ƒ /api/upload                          0 B                0 B
+├ ƒ /api/upload/image                    0 B                0 B
+├ ƒ /api/user/preferences                0 B                0 B
+├ ○ /cart                                4.53 kB         101 kB
+├ ƒ /category/[slug]                     191 B          96.5 kB
+├ ○ /checkout                            4.51 kB         104 kB
+├ ○ /checkout/success                    1.86 kB        98.2 kB
+├ ○ /contact                             161 B          89.7 kB
+├ ○ /faq                                 161 B          89.7 kB
+├ ○ /forgot-password                     1.96 kB         108 kB
+├ ƒ /free-resources                      191 B          96.5 kB
+├ ○ /login                               2.34 kB         109 kB
+├ ƒ /my-notes                            191 B          96.5 kB
+├ ƒ /notes                               3.23 kB        99.5 kB
+├ ƒ /notes/[slug]                        7.82 kB         104 kB
+├ ○ /orders                              2.1 kB          109 kB
+├ ○ /privacy                             161 B          89.7 kB
+├ ○ /profile                             2.9 kB          109 kB
+├ ○ /refund                              161 B          89.7 kB
+├ ○ /reset-password                      2.5 kB          108 kB
+├ ○ /robots.txt                          0 B                0 B
+├ ○ /search                              3.24 kB        99.5 kB
+├ ○ /shipping-policy                     161 B          89.7 kB
+├ ○ /signup                              5.31 kB         102 kB
+├ ○ /sitemap.xml                         0 B                0 B
+├ ○ /terms                               191 B          96.5 kB
+└ ○ /wishlist                            1.94 kB         108 kB
++ First Load JS shared by all            89.5 kB
+  ├ chunks/5190-5d0912a8f78b0876.js      33.8 kB
+  ├ chunks/fd9d1056-2375352a2ab81c1f.js  53.6 kB
+  └ other shared chunks (total)          2.07 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
