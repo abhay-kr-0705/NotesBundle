@@ -18,7 +18,7 @@ model User {
   image         String?
   role          Role      @default(USER)
   interests     String[]  // Array of category slugs for recommendations
-  phone         String
+  phone         String?
   otp           String?
   otpExpiry     DateTime?
   createdAt     DateTime  @default(now())
