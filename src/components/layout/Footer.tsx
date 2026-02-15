@@ -24,9 +24,13 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
                     {/* Brand */}
                     <div className="lg:col-span-2">
-                        <Link href="/" className="flex items-center gap-2 mb-6">
-                            <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
-                                <BookOpen className="w-6 h-6 text-white" />
+                        <Link href="/" className="flex items-center gap-3 mb-6">
+                            <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-md">
+                                <img
+                                    src="/images/logo.jpg"
+                                    alt="NotesBundle"
+                                    className="w-full h-full object-cover"
+                                />
                             </div>
                             <span className="text-xl font-bold text-white font-display">
                                 Notes<span className="text-primary">Bundle</span>
