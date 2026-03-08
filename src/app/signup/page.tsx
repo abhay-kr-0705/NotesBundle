@@ -86,6 +86,34 @@ export default function SignUpPage() {
         }));
     };
 
+    const [otp, setOtp] = useState('');
+    const [isVerifying, setIsVerifying] = useState(false);
+    const [verificationError, setVerificationError] = useState('');
+    const [verificationMethod, setVerificationMethod] = useState<'phone' | 'email'>('phone');
+    const [confirmationResult, setConfirmationResult] = useState<any>(null);
+
+    // Initialize Firebase Recaptcha
+    useEffect(() => {
+        const setupRecaptcha = async () => {
+            if (!(window as any).recaptchaVerifier) {
+                const { auth } = await import('@/lib/firebase');
+                const { RecaptchaVerifier } = await import('firebase/auth');
+
+                try {
+                    (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                        size: 'invisible',
+                        callback: (response: any) => {
+                            // reCAPTCHA solved
+                        }
+                    });
+                } catch (e) {
+                    console.error("Recaptcha initialization error:", e);
+                }
+            }
+        };
+        setupRecaptcha();
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -113,19 +141,36 @@ export default function SignUpPage() {
         setError('');
 
         try {
-            const response = await fetch('/api/auth/register', {
+            // 1. Create unverified account (Skip Email OTP initially)
+            const registerResponse = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({ ...formData, skipEmailOtp: true }),
             });
 
-            const data = await response.json();
+            const registerData = await registerResponse.json();
 
-            if (!response.ok) {
-                throw new Error(data.error || 'Registration failed');
+            if (!registerResponse.ok) {
+                throw new Error(registerData.error || 'Registration failed');
             }
 
-            setIsSuccess(true);
+            // 2. Trigger Firebase SMS OTP
+            const { auth } = await import('@/lib/firebase');
+            const { signInWithPhoneNumber } = await import('firebase/auth');
+            const appVerifier = (window as any).recaptchaVerifier;
+
+            // Format phone number to E.164 (assuming India for now, but should ideally handle internationally)
+            const formattedPhone = formData.phone.startsWith('+') ? formData.phone : `+91${formData.phone}`;
+
+            try {
+                const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
+                setConfirmationResult(confirmation);
+                setIsSuccess(true);
+            } catch (fbError: any) {
+                console.error("Firebase SMS error:", fbError);
+                throw new Error("Failed to send SMS OTP. Please try again or use Email verification.");
+            }
+
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -133,9 +178,39 @@ export default function SignUpPage() {
         }
     };
 
-    const [otp, setOtp] = useState('');
-    const [isVerifying, setIsVerifying] = useState(false);
-    const [verificationError, setVerificationError] = useState('');
+    const handleVerifyPhone = async () => {
+        if (!confirmationResult) return;
+        try {
+            // 1. Verify with Firebase
+            await confirmationResult.confirm(otp);
+
+            // 2. Mark verified in our DB
+            const response = await fetch('/api/auth/verify-phone', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: formData.email }),
+            });
+
+            if (!response.ok) throw new Error('Failed to update verification status');
+
+            router.push('/login?verified=true');
+        } catch (err: any) {
+            throw new Error(err.code === 'auth/invalid-verification-code' ? 'Invalid OTP code' : 'Verification failed');
+        }
+    };
+
+    const handleVerifyEmail = async () => {
+        const response = await fetch('/api/auth/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: formData.email, otp }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Verification failed');
+
+        router.push('/login?verified=true');
+    };
 
     const handleVerify = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -143,22 +218,35 @@ export default function SignUpPage() {
         setVerificationError('');
 
         try {
-            const response = await fetch('/api/auth/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: formData.email, otp }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Verification failed');
+            if (verificationMethod === 'phone') {
+                await handleVerifyPhone();
+            } else {
+                await handleVerifyEmail();
             }
-
-            // Redirect to login with verified flag
-            router.push('/login?verified=true');
         } catch (err: any) {
             setVerificationError(err.message);
+        } finally {
+            setIsVerifying(false);
+        }
+    };
+
+    const switchToEmailVerification = async () => {
+        setIsVerifying(true);
+        setVerificationError('');
+        try {
+            // Request backend to send email OTP
+            const response = await fetch('/api/auth/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: formData.email }),
+            });
+
+            if (!response.ok) throw new Error('Failed to send Email OTP');
+
+            setVerificationMethod('email');
+            setOtp('');
+        } catch (err: any) {
+            setVerificationError('Failed to send Email OTP. Please try again.');
         } finally {
             setIsVerifying(false);
         }
@@ -168,40 +256,53 @@ export default function SignUpPage() {
         return (
             <div className="min-h-screen pt-20 pb-12 flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50">
                 <div className="w-full max-w-md mx-4">
-                    <div className="card p-8 animate-fade-in">
+                    <div className="card p-8 animate-fade-in shadow-xl shadow-primary-500/5 border-primary/10">
                         <div className="text-center mb-6">
                             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Mail className="w-8 h-8 text-blue-600" />
+                                {verificationMethod === 'phone' ? (
+                                    <Phone className="w-8 h-8 text-blue-600" />
+                                ) : (
+                                    <Mail className="w-8 h-8 text-blue-600" />
+                                )}
                             </div>
-                            <h1 className="text-2xl font-bold text-foreground mb-2">Verify your email</h1>
-                            <p className="text-muted-foreground">
-                                We've sent a 6-digit code to <br /><strong>{formData.email}</strong>
+                            <h1 className="text-2xl font-bold text-foreground mb-2">
+                                Verify your {verificationMethod === 'phone' ? 'phone' : 'email'}
+                            </h1>
+                            <p className="text-muted-foreground text-sm">
+                                We've sent a 6-digit code to <br />
+                                <strong className="text-foreground text-base">
+                                    {verificationMethod === 'phone' ? formData.phone : formData.email}
+                                </strong>
                             </p>
                         </div>
 
                         {verificationError && (
-                            <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm mb-6">
-                                {verificationError}
+                            <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm mb-6 flex items-start gap-3">
+                                <div className="p-1 bg-red-100 rounded-full mt-0.5">
+                                    <EyeOff className="w-4 h-4 text-red-600" />
+                                </div>
+                                <p className="font-medium">{verificationError}</p>
                             </div>
                         )}
 
-                        <form onSubmit={handleVerify} className="space-y-5">
+                        <form onSubmit={handleVerify} className="space-y-6">
                             <div>
-                                <label htmlFor="otp" className="block text-sm font-medium text-foreground mb-2">
-                                    Enter Verification Code
+                                <label htmlFor="otp" className="block text-sm font-semibold text-foreground mb-2">
+                                    Enter 6-digit Code
                                 </label>
                                 <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                     <input
                                         type="text"
                                         id="otp"
                                         value={otp}
                                         onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                                        placeholder="123456"
-                                        className="input !pl-12 tracking-[0.5em] font-mono text-center text-lg"
+                                        placeholder="••••••"
+                                        className="input !pl-12 tracking-[0.5em] font-mono text-center text-xl h-14 bg-slate-50 border-slate-200 focus:bg-white transition-colors"
                                         required
                                         maxLength={6}
                                         minLength={6}
+                                        autoComplete="one-time-code"
                                     />
                                 </div>
                             </div>
@@ -209,21 +310,36 @@ export default function SignUpPage() {
                             <button
                                 type="submit"
                                 disabled={isVerifying || otp.length !== 6}
-                                className="btn-primary w-full py-3.5 shadow-lg shadow-blue-500/20"
+                                className="btn-primary w-full h-14 shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all font-semibold text-base"
                             >
                                 {isVerifying ? (
                                     <>
                                         <Loader2 className="w-5 h-5 animate-spin" />
-                                        Verifying...
+                                        Verifying code...
                                     </>
                                 ) : (
                                     <>
-                                        Verify Email
+                                        Verify & Create Account
                                         <ArrowRight className="w-5 h-5" />
                                     </>
                                 )}
                             </button>
                         </form>
+
+                        {/* Fallback Option */}
+                        {verificationMethod === 'phone' && (
+                            <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+                                <p className="text-sm text-slate-500 mb-3">Didn't receive the SMS?</p>
+                                <button
+                                    onClick={switchToEmailVerification}
+                                    disabled={isVerifying}
+                                    className="text-primary hover:text-indigo-700 font-semibold text-sm inline-flex items-center gap-2 hover:bg-slate-50 py-2 px-4 rounded-full transition-colors"
+                                >
+                                    <Mail className="w-4 h-4" />
+                                    Send OTP to Email instead
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -503,6 +619,9 @@ export default function SignUpPage() {
                     {' '}and{' '}
                     <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
                 </p>
+
+                {/* Invisible Recaptcha Container for Firebase */}
+                <div id="recaptcha-container"></div>
             </div>
         </div>
     );

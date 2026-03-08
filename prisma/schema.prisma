@@ -21,6 +21,7 @@ model User {
   phone         String
   otp           String?
   otpExpiry     DateTime?
+  phoneVerified DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 

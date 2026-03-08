@@ -81,36 +81,33 @@ export async function POST(request: Request) {
         });
 
         // Try sending email, but don't fail registration if it fails (can retry later)
-        try {
-            console.log(`Attempting to send verification email to ${user.email}`);
-            const emailSent = await sendVerificationEmail(user.email, otp);
-            if (!emailSent) {
-                // If email fails, we should probably delete the user or mark as invalid,
-                // but for now, let's just error out so they know.
-                // Optionally delete the user to allow retry:
-                // await prisma.user.delete({ where: { id: user.id } });
+        // Skip email sending if skipEmailOtp is true (e.g. when verifying via Phone first)
+        const skipEmailOtp = body.skipEmailOtp === true;
 
+        if (!skipEmailOtp) {
+            try {
+                console.log(`Attempting to send verification email to ${user.email}`);
+                const emailSent = await sendVerificationEmail(user.email, otp);
+                if (!emailSent) {
+                    return NextResponse.json(
+                        { error: 'Account created but failed to send verification email. Please check your email is correct.' },
+                        { status: 500 }
+                    );
+                }
+            } catch (emailError: any) {
+                console.error('Failed to send verification email:', emailError);
                 return NextResponse.json(
-                    { error: 'Account created but failed to send verification email. Please check your email is correct.' },
-                    { status: 500 }
+                    {
+                        message: 'Account created successfully, but verification email failed to send. Please try logging in or contact support.',
+                        userId: user.id
+                    },
+                    { status: 201 }
                 );
             }
-        } catch (emailError: any) {
-            console.error('Failed to send verification email:', emailError);
-            // Do not delete user, allow them to login/resend
-            // await prisma.user.delete({ where: { id: user.id } });
-
-            return NextResponse.json(
-                {
-                    message: 'Account created successfully, but verification email failed to send. Please try logging in or contact support.',
-                    userId: user.id
-                },
-                { status: 201 }
-            );
         }
 
         return NextResponse.json(
-            { message: 'Account created successfully! Please check your email for verification.', userId: user.id },
+            { message: skipEmailOtp ? 'Account created. Please verify phone number.' : 'Account created successfully! Please check your email for verification.', userId: user.id },
             { status: 201 }
         );
     } catch (error: any) {
