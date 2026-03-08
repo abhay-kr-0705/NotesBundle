@@ -61,7 +61,7 @@ async function main() {
     console.log('Start seeding...');
 
     // create admin user
-    const adminPassword = await hash('admin123', 12);
+    const hashedPassword = await hash('admin123', 12);
     const admin = await prisma.user.upsert({
         where: { email: 'admin@notesbundle.com' },
         update: {},
@@ -69,8 +69,9 @@ async function main() {
             email: 'admin@notesbundle.com',
             name: 'Admin User',
             role: 'ADMIN',
-            password: adminPassword,
-            interests: ['gate-cse', 'coding-python'],
+            phone: '1234567890',
+            password: hashedPassword,
+            interests: [],
         },
     });
     console.log(`Created admin user: ${admin.email}`);
