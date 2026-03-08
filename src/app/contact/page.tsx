@@ -30,9 +30,9 @@ export default function ContactPage() {
                     </div>
                     <h3 className="text-xl font-semibold mb-2">Call Us</h3>
                     <p className="text-muted-foreground mb-4">Mon-Fri from 9am to 6pm</p>
-                    <a href="tel:+919876543210" className="text-primary font-medium hover:underline">
-                        +91 98765 43210
-                    </a>
+                    <span className="text-primary font-medium">
+                        *********
+                    </span>
                 </div>
 
                 {/* Address */}

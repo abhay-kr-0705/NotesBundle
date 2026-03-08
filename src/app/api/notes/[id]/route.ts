@@ -159,6 +159,11 @@ export async function DELETE(
             );
         }
 
+        // Delete related order items to prevent foreign key constraint errors
+        await prisma.orderItem.deleteMany({
+            where: { noteId: params.id },
+        });
+
         const note = await prisma.note.delete({
             where: { id: params.id },
         });

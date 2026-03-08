@@ -16,7 +16,7 @@ const sampleOrders = [
         id: 'ORD-001',
         customer: 'Rahul Kumar',
         email: 'rahul@email.com',
-        phone: '+91 98765 43210',
+        phone: '*********',
         items: [
             { title: 'Complete GATE CSE Notes 2024', price: 199 },
         ],
@@ -29,7 +29,7 @@ const sampleOrders = [
         id: 'ORD-002',
         customer: 'Priya Singh',
         email: 'priya@email.com',
-        phone: '+91 87654 32109',
+        phone: '*********',
         items: [
             { title: 'GATE ECE Notes 2024', price: 249 },
             { title: 'Engineering Handbook', price: 50 },
@@ -43,7 +43,7 @@ const sampleOrders = [
         id: 'ORD-003',
         customer: 'Amit Verma',
         email: 'amit@email.com',
-        phone: '+91 76543 21098',
+        phone: '*********',
         items: [
             { title: 'Python Programming Notes', price: 99 },
         ],
@@ -56,7 +56,7 @@ const sampleOrders = [
         id: 'ORD-004',
         customer: 'Neha Sharma',
         email: 'neha@email.com',
-        phone: '+91 65432 10987',
+        phone: '*********',
         items: [
             { title: 'BEU 3rd Semester Notes', price: 199 },
             { title: 'DSA Handwritten Notes', price: 149 },
@@ -71,7 +71,7 @@ const sampleOrders = [
         id: 'ORD-005',
         customer: 'Vikash Yadav',
         email: 'vikash@email.com',
-        phone: '+91 54321 09876',
+        phone: '*********',
         items: [
             { title: 'UPSC Complete Guide', price: 399 },
         ],
