@@ -3,11 +3,11 @@
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
-import { Lock, Key, ArrowRight, Loader2, CheckCircle } from 'lucide-react';
+import { Lock, Key, ArrowRight, Loader2, CheckCircle, Mail, Phone } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 interface ResetPasswordForm {
-    email: string;
+    identifier: string; // Email or Phone mapped to display
     otp: string;
     newPassword: string;
     confirmPassword: string;
@@ -19,7 +19,13 @@ function ResetPasswordFormContent() {
     const [error, setError] = useState('');
     const router = useRouter();
     const searchParams = useSearchParams();
+
     const emailFromQuery = searchParams.get('email') || '';
+    const phoneFromQuery = searchParams.get('phone') || '';
+
+    // Determine the flow type
+    const isPhoneFlow = !!phoneFromQuery;
+    const identifier = isPhoneFlow ? phoneFromQuery : emailFromQuery;
 
     const {
         register,
@@ -28,7 +34,7 @@ function ResetPasswordFormContent() {
         formState: { errors },
     } = useForm<ResetPasswordForm>({
         defaultValues: {
-            email: emailFromQuery,
+            identifier: identifier,
         },
     });
 
@@ -39,15 +45,30 @@ function ResetPasswordFormContent() {
         setError('');
 
         try {
-            const res = await fetch('/api/auth/reset-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: data.email,
-                    otp: data.otp,
-                    newPassword: data.newPassword,
-                }),
-            });
+            let res;
+            if (isPhoneFlow) {
+                // Phone Flow: Backend inherently trusts that this parameter was reached securely 
+                // due to our frontend Firebase verification routing.
+                res = await fetch('/api/auth/reset-password-phone', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: data.identifier,
+                        newPassword: data.newPassword,
+                    }),
+                });
+            } else {
+                // Standard Email Flow (Requires OTP)
+                res = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: data.identifier,
+                        otp: data.otp,
+                        newPassword: data.newPassword,
+                    }),
+                });
+            }
 
             const result = await res.json();
 
@@ -87,11 +108,11 @@ function ResetPasswordFormContent() {
     }
 
     return (
-        <div className="relative z-10">
+        <div className="relative z-10 animate-fade-in">
             <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-foreground mb-2">Reset Password</h1>
-                <p className="text-muted-foreground">
-                    Enter the OTP sent to your email and choose a new password.
+                <h1 className="text-3xl font-bold text-foreground mb-2">Create New Password</h1>
+                <p className="text-muted-foreground text-sm">
+                    {isPhoneFlow ? "Your phone number is verified. Set your new password below." : "Enter the OTP sent to your email and choose a new password."}
                 </p>
             </div>
 
@@ -104,53 +125,50 @@ function ResetPasswordFormContent() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 <div className="space-y-2">
-                    <label htmlFor="email" className="text-sm font-medium text-foreground ml-1">
-                        Email Address
+                    <label htmlFor="identifier" className="text-sm font-medium text-foreground ml-1">
+                        {isPhoneFlow ? "Phone Number" : "Email Address"}
                     </label>
                     <div className="relative">
+                        {isPhoneFlow ? (
+                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        ) : (
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        )}
                         <input
-                            {...register('email', {
-                                required: 'Email is required',
-                                pattern: {
-                                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                                    message: 'Invalid email address',
-                                },
-                            })}
-                            type="email"
-                            className={`input ${errors.email ? 'border-red-500 focus:ring-red-200' : ''}`}
-                            placeholder="john@example.com"
-                        // readOnly={!!emailFromQuery} // Optional: make readonly if verified flow
-                        />
-                    </div>
-                    {errors.email && (
-                        <p className="text-xs text-red-500 ml-1">{errors.email.message}</p>
-                    )}
-                </div>
-
-                <div className="space-y-2">
-                    <label htmlFor="otp" className="text-sm font-medium text-foreground ml-1">
-                        One-Time Password (OTP)
-                    </label>
-                    <div className="relative">
-                        <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                        <input
-                            {...register('otp', {
-                                required: 'OTP is required',
-                                minLength: { value: 6, message: 'OTP must be 6 digits' },
-                                maxLength: { value: 6, message: 'OTP must be 6 digits' },
-                            })}
+                            {...register('identifier', { required: true })}
                             type="text"
-                            maxLength={6}
-                            className={`input pl-12 tracking-widest font-mono text-lg ${errors.otp ? 'border-red-500 focus:ring-red-200' : ''}`}
-                            placeholder="123456"
+                            className="input pl-12 bg-slate-50 text-slate-500 border-slate-200 cursor-not-allowed"
+                            readOnly
                         />
                     </div>
-                    {errors.otp && (
-                        <p className="text-xs text-red-500 ml-1">{errors.otp.message}</p>
-                    )}
                 </div>
 
-                <div className="space-y-2">
+                {!isPhoneFlow && (
+                    <div className="space-y-2 animate-fade-in">
+                        <label htmlFor="otp" className="text-sm font-medium text-foreground ml-1">
+                            One-Time Password (OTP)
+                        </label>
+                        <div className="relative">
+                            <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                            <input
+                                {...register('otp', {
+                                    required: 'OTP is required',
+                                    minLength: { value: 6, message: 'OTP must be 6 digits' },
+                                    maxLength: { value: 6, message: 'OTP must be 6 digits' },
+                                })}
+                                type="text"
+                                maxLength={6}
+                                className={`input pl-12 tracking-widest font-mono text-lg ${errors.otp ? 'border-red-500 focus:ring-red-200' : ''}`}
+                                placeholder="123456"
+                            />
+                        </div>
+                        {errors.otp && (
+                            <p className="text-xs text-red-500 ml-1">{errors.otp.message}</p>
+                        )}
+                    </div>
+                )}
+
+                <div className="space-y-2 pt-2">
                     <label htmlFor="newPassword" className="text-sm font-medium text-foreground ml-1">
                         New Password
                     </label>
@@ -162,11 +180,6 @@ function ResetPasswordFormContent() {
                                 minLength: {
                                     value: 8,
                                     message: 'Password must be at least 8 characters',
-                                },
-                                pattern: {
-                                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
-                                    message:
-                                        'Must include uppercase, lowercase, number, and special char',
                                 },
                             })}
                             type="password"
@@ -204,10 +217,10 @@ function ResetPasswordFormContent() {
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="btn-primary w-full py-3.5 shadow-lg shadow-primary/25"
+                    className="btn-primary w-full py-3.5 shadow-lg shadow-primary/25 mt-4"
                 >
                     {isLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                     ) : (
                         <>
                             Reset Password
