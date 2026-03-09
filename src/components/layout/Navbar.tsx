@@ -320,6 +320,86 @@ export default function Navbar() {
                 {isMobileMenuOpen && (
                     <div className="lg:hidden border-t border-border py-4 animate-slide-down max-h-[calc(100vh-4rem)] overflow-y-auto">
                         <div className="flex flex-col gap-2">
+                            {session ? (
+                                <>
+                                    <Link
+                                        href="/profile"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3 font-medium hover:bg-secondary rounded-xl transition-colors"
+                                    >
+                                        <User className="w-5 h-5 text-muted-foreground" />
+                                        My Profile
+                                    </Link>
+                                    <Link
+                                        href="/orders"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3 font-medium hover:bg-secondary rounded-xl transition-colors"
+                                    >
+                                        <FileText className="w-5 h-5 text-muted-foreground" />
+                                        My Orders
+                                    </Link>
+                                    <Link
+                                        href="/my-notes"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3 font-medium hover:bg-secondary rounded-xl transition-colors"
+                                    >
+                                        <BookOpen className="w-5 h-5 text-muted-foreground" />
+                                        My Notes
+                                    </Link>
+                                    <Link
+                                        href="/wishlist"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3 font-medium hover:bg-secondary rounded-xl transition-colors"
+                                    >
+                                        <Heart className="w-5 h-5 text-muted-foreground" />
+                                        Wishlist
+                                    </Link>
+                                    <Link
+                                        href="/cart"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3 font-medium hover:bg-secondary rounded-xl transition-colors"
+                                    >
+                                        <ShoppingCart className="w-5 h-5 text-muted-foreground" />
+                                        Cart
+                                        {mounted && cartItems.length > 0 && (
+                                            <span className="ml-auto bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                                {cartItems.length}
+                                            </span>
+                                        )}
+                                    </Link>
+                                    {(session.user as any)?.role === 'ADMIN' && (
+                                        <Link
+                                            href="/admin"
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-3 font-medium text-primary hover:bg-secondary rounded-xl transition-colors"
+                                        >
+                                            <Settings className="w-5 h-5" />
+                                            Admin Panel
+                                        </Link>
+                                    )}
+                                    <button
+                                        onClick={() => {
+                                            signOut();
+                                            setIsMobileMenuOpen(false);
+                                        }}
+                                        className="flex items-center gap-3 px-4 py-3 font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors text-left w-full"
+                                    >
+                                        <LogOut className="w-5 h-5" />
+                                        Sign Out
+                                    </button>
+                                    <hr className="my-2 border-border" />
+                                </>
+                            ) : (
+                                <div className="flex gap-2 px-4 py-2 mb-2">
+                                    <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="btn-secondary flex-1 text-center font-medium">
+                                        Log In
+                                    </Link>
+                                    <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="btn-primary flex-1 text-center font-medium">
+                                        Sign Up
+                                    </Link>
+                                </div>
+                            )}
+
                             {categories
                                 .filter(c => !c.parentId)
                                 .map((category) => {
@@ -388,85 +468,6 @@ export default function Navbar() {
                             >
                                 About
                             </Link>
-                            <hr className="my-2 border-border" />
-                            {session ? (
-                                <>
-                                    <Link
-                                        href="/profile"
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 font-medium hover:bg-secondary rounded-xl transition-colors"
-                                    >
-                                        <User className="w-5 h-5 text-muted-foreground" />
-                                        My Profile
-                                    </Link>
-                                    <Link
-                                        href="/orders"
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 font-medium hover:bg-secondary rounded-xl transition-colors"
-                                    >
-                                        <FileText className="w-5 h-5 text-muted-foreground" />
-                                        My Orders
-                                    </Link>
-                                    <Link
-                                        href="/my-notes"
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 font-medium hover:bg-secondary rounded-xl transition-colors"
-                                    >
-                                        <BookOpen className="w-5 h-5 text-muted-foreground" />
-                                        My Notes
-                                    </Link>
-                                    <Link
-                                        href="/wishlist"
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 font-medium hover:bg-secondary rounded-xl transition-colors"
-                                    >
-                                        <Heart className="w-5 h-5 text-muted-foreground" />
-                                        Wishlist
-                                    </Link>
-                                    <Link
-                                        href="/cart"
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 font-medium hover:bg-secondary rounded-xl transition-colors"
-                                    >
-                                        <ShoppingCart className="w-5 h-5 text-muted-foreground" />
-                                        Cart
-                                        {mounted && cartItems.length > 0 && (
-                                            <span className="ml-auto bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                                                {cartItems.length}
-                                            </span>
-                                        )}
-                                    </Link>
-                                    {(session.user as any)?.role === 'ADMIN' && (
-                                        <Link
-                                            href="/admin"
-                                            onClick={() => setIsMobileMenuOpen(false)}
-                                            className="flex items-center gap-3 px-4 py-3 font-medium text-primary hover:bg-secondary rounded-xl transition-colors"
-                                        >
-                                            <Settings className="w-5 h-5" />
-                                            Admin Panel
-                                        </Link>
-                                    )}
-                                    <button
-                                        onClick={() => {
-                                            signOut();
-                                            setIsMobileMenuOpen(false);
-                                        }}
-                                        className="flex items-center gap-3 px-4 py-3 font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors text-left w-full"
-                                    >
-                                        <LogOut className="w-5 h-5" />
-                                        Sign Out
-                                    </button>
-                                </>
-                            ) : (
-                                <div className="flex gap-2 px-4 py-2">
-                                    <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="btn-secondary flex-1 text-center">
-                                        Log In
-                                    </Link>
-                                    <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="btn-primary flex-1 text-center">
-                                        Sign Up
-                                    </Link>
-                                </div>
-                            )}
                         </div>
                     </div>
                 )}

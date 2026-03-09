@@ -151,6 +151,7 @@ export default function SignUpPage() {
             const registerData = await registerResponse.json();
 
             if (!registerResponse.ok) {
+                // If it fails due to existing account etc, throw
                 throw new Error(registerData.error || 'Registration failed');
             }
 
@@ -159,16 +160,34 @@ export default function SignUpPage() {
             const { signInWithPhoneNumber } = await import('firebase/auth');
             const appVerifier = (window as any).recaptchaVerifier;
 
-            // Format phone number to E.164 (assuming India for now, but should ideally handle internationally)
+            // Format phone number to E.164 (assuming India for now)
             const formattedPhone = formData.phone.startsWith('+') ? formData.phone : `+91${formData.phone}`;
 
             try {
                 const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
                 setConfirmationResult(confirmation);
+                setVerificationMethod('phone');
                 setIsSuccess(true);
             } catch (fbError: any) {
-                console.error("Firebase SMS error:", fbError);
-                throw new Error("Failed to send SMS OTP. Please try again or use Email verification.");
+                console.warn("Firebase SMS error, falling back to Email Verification:", fbError);
+
+                // Fallback to sending Email OTP automatically
+                try {
+                    const emailOtpResponse = await fetch('/api/auth/send-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: formData.email }),
+                    });
+
+                    if (!emailOtpResponse.ok) {
+                        throw new Error('Failed to send fallback Email OTP');
+                    }
+
+                    setVerificationMethod('email');
+                    setIsSuccess(true); // Proceed to OTP screen
+                } catch (fallbackError) {
+                    throw new Error("Failed to send OTP via Phone and Email. Please try logging in and requesting a new code.");
+                }
             }
 
         } catch (err: any) {
